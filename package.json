@@ -7,13 +7,17 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "android:clean": "cd android && gradlew.bat clean",
+    "android:clean-debug": "cd android && gradlew.bat clean && cd .. && react-native run-android",
+    "android:clean-aab": "cd android && gradlew.bat clean bundleRelease",
+    "android:clean-apk": "cd android && gradlew.bat clean assembleRelease"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.82.1",
     "react": "19.1.1",
     "react-native": "0.82.1",
-    "react-native-safe-area-context": "^5.5.2"
+    "react-native-safe-area-context": "^5.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
