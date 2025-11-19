@@ -1,13 +1,11 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from 'react-native';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+import React from 'react';
 
-function App() {
-
+export default function App() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Text>Hello World!</Text>
-    </SafeAreaView>
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
   );
 }
-
-export default App;
