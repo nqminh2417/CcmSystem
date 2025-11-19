@@ -73,3 +73,9 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Ignore tất cả file .env.*
+.env.*
+
+# Nhưng vẫn giữ .env.example trong git
+!.env.example

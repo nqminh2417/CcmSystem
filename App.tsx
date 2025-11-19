@@ -1,13 +1,9 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from 'react-native';
+import AppNavigator from './src/navigation/AppNavigator';
+import { PaperProvider } from 'react-native-paper';
+import React from 'react';
 
-function App() {
-
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Text>Hello World!</Text>
-    </SafeAreaView>
-  );
+export default function App() {
+  return <PaperProvider>
+    <AppNavigator />
+  </PaperProvider>;
 }
-
-export default App;
