@@ -1,15 +1,15 @@
+import { RootStackParamList, Routes } from '../navigation/routes';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { RootStackParamList } from '../navigation/AppNavigator';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<RootStackParamList, typeof Routes.Login>;
 
 export function LoginScreen({ navigation }: Props) {
     const handleLogin = () => {
         // TODO: sau này bạn xử lý login thật ở đây
-        navigation.replace('Home'); // hoặc navigation.navigate('Home');
+        navigation.push(Routes.Home); // hoặc navigation.navigate('Home');
     };
 
     return (

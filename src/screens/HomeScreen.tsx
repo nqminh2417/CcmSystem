@@ -1,23 +1,31 @@
-import { StyleSheet, Text, View } from 'react-native';
+// src/screens/HomeScreen.tsx
+
+import { StyleSheet, Text } from 'react-native';
 
 import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function HomeScreen() {
     return (
-        <View style={styles.container}>
+        <SafeAreaView
+            style={styles.container}
+            // AppBar đang dùng header của React Navigation ở trên,
+            // nên ở đây mình chỉ cần safe area cho 3 cạnh dưới / trái / phải
+            edges={['left', 'right', 'bottom']}
+        >
             <Text style={styles.title}>Home Screen</Text>
             <Text>Chào mừng bạn đã login thành công 👋</Text>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        padding: 16,
+        // backgroundColor: '#fff', // nếu muốn nền trắng
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#fff',
     },
     title: {
         fontSize: 22,

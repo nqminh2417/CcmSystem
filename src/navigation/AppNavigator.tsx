@@ -1,26 +1,31 @@
+// src/navigation/AppNavigator.tsx
+// https://reactnavigation.org/docs/getting-started
+
+import { NativeStackHeaderProps, createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList, Routes } from './routes';
+
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
+import { MainAppBar } from '../components/MainAppBar';
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-// Khai báo type cho các màn hình trong stack
-export type RootStackParamList = {
-    Login: undefined;
-    Home: undefined;
-};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export function AppNavigator() {
+const AppHeader = (props: NativeStackHeaderProps) => <MainAppBar {...props} />;
+
+export default function AppNavigator() {
     return (
-        <Stack.Navigator
-            initialRouteName="Login"
-            screenOptions={{
-                headerShown: false, // ẩn header mặc định, tùy bạn
-            }}
-        >
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Home" component={HomeScreen} />
-        </Stack.Navigator>
+        <NavigationContainer>
+            <Stack.Navigator
+                initialRouteName={Routes.Login}
+                screenOptions={{
+                    header: AppHeader,
+                }}
+            >
+                <Stack.Screen name={Routes.Login} component={LoginScreen} options={{ headerShown: false, }} />
+                <Stack.Screen name={Routes.Home} component={HomeScreen} options={{ title: 'Trang chủ' }} />
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }
