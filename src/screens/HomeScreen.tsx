@@ -20,16 +20,6 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        // backgroundColor: '#fff', // nếu muốn nền trắng
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: '700',
-        marginBottom: 8,
-    },
+    container: { padding: 16, alignItems: 'center' },
+    title: { fontSize: 22, fontWeight: '700', marginVertical: 16 },
 });
