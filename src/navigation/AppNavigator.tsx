@@ -12,7 +12,7 @@ import React from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const AppHeader = (props: NativeStackHeaderProps) => <MainAppBar {...props} />;
+const AppHeader = (props: NativeStackHeaderProps) => (<MainAppBar {...props} />);
 
 export default function AppNavigator() {
     return (
@@ -21,6 +21,7 @@ export default function AppNavigator() {
                 initialRouteName={Routes.Login}
                 screenOptions={{
                     header: AppHeader,
+                    animation: 'none',
                 }}
             >
                 <Stack.Screen name={Routes.Login} component={LoginScreen} options={{ headerShown: false, }} />

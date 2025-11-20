@@ -1,76 +1,112 @@
-import { Appbar, useTheme } from 'react-native-paper';
+import { Appbar, List, Portal, Surface, useTheme, } from 'react-native-paper';
+import { Pressable, StyleSheet, View, } from 'react-native';
 
-import { Image } from 'react-native';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Routes } from '../navigation/routes';
 
-type AppBarConfig = {
-    showMenuLeft?: boolean;
-    showSearch?: boolean;
-    showBell?: boolean;
-};
+const APPBAR_HEIGHT = 56; // chiều cao Appbar.Header mặc định
 
-// Cấu hình AppBar cho từng màn hình
-const APPBAR_CONFIG: Record<string, AppBarConfig> = {
-    [Routes.Home]: {
-        // Home chỉ có 1 nút Menu (bên trái), không có action nào bên phải
-        showMenuLeft: true,
-        showSearch: true
-    },
-    // Các màn khác nếu không khai thì sẽ dùng config rỗng
-};
-
-export function MainAppBar({ navigation, route, options, back }: NativeStackHeaderProps) {
+export function MainAppBar({
+    navigation,
+    route,
+    options,
+    back,
+}: NativeStackHeaderProps) {
     const theme = useTheme();
-    const config = APPBAR_CONFIG[route.name] ?? {};
+    const [menuVisible, setMenuVisible] = React.useState(false);
 
-    const title =
-        options.title ??
-        (route.name === Routes.Home ? 'Trang chủ' : route.name);
+    const openMenu = () => setMenuVisible(true);
+    const closeMenu = () => setMenuVisible(false);
 
-    const handleMenu = () => {
-        // TODO: open drawer, menu, profile...
-        console.log('Menu pressed');
+    const handleGoHome = () => {
+        closeMenu();
+        if (route.name === Routes.Home) return;
+        navigation.navigate(Routes.Home as never);
     };
 
-    const handleSearch = () => {
-        // TODO: mở màn search, hoặc show search bar
-        console.log('Search pressed');
+    const handleLogout = () => {
+        closeMenu();
+        // TODO: clear mmkv/token nếu cần
+        navigation.reset({
+            index: 0,
+            routes: [{ name: Routes.Login as never }],
+        });
     };
 
-    const handleBell = () => {
-        // TODO: navigate tới màn thông báo
-        console.log('Notifications pressed');
-    };
+    const title = options.title ?? route.name;
+    const showBack = !!back; // có back param là có nút back
 
     return (
-        <Appbar.Header
-            statusBarHeight={0}
-            mode="center-aligned"
-            elevated
-            style={{ backgroundColor: theme.colors.primary }}
-        >
-            {/* Bên trái: ưu tiên nút back, nếu không có back thì mới xét menuLeft */}
-            {back ? (
-                <Appbar.BackAction onPress={navigation.goBack} color="#fff" />
-            ) : config.showMenuLeft ? (
-                <Appbar.Action icon="camera" onPress={handleMenu} color="#fff" />
-            ) : null}
+        <>
+            <Appbar.Header
+                statusBarHeight={0}
+                mode="center-aligned"
+                elevated
+                style={{ backgroundColor: theme.colors.primary }}
+            >
+                {showBack && (
+                    <Appbar.BackAction
+                        onPress={navigation.goBack}
+                        color="#fff"
+                    />
+                )}
 
-            <Appbar.Content
-                title={title}
-                titleStyle={{ color: '#fff', fontWeight: '700' }}
-            />
+                <Appbar.Content
+                    title={title}
+                    titleStyle={{ color: '#fff', fontWeight: '700' }}
+                />
 
-            {/* Bên phải: các Appbar.Action tùy màn */}
-            {config.showSearch && (
-                <Appbar.Action icon="magnify" onPress={handleSearch} color="#fff" />
-            )}
+                <Appbar.Action
+                    icon="dots-vertical"
+                    size={28}
+                    color="#fff"
+                    onPress={openMenu}
+                />
+            </Appbar.Header>
 
-            {config.showBell && (
-                <Appbar.Action icon="bell-outline" onPress={handleBell} color="#fff" />
-            )}
-        </Appbar.Header>
+            {/* Menu custom vẽ bằng Portal + Surface */}
+            <Portal>
+                {menuVisible && (
+                    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                        {/* layer che toàn màn – bấm ra ngoài để đóng */}
+                        <Pressable
+                            style={StyleSheet.absoluteFill}
+                            onPress={closeMenu}
+                        />
+
+                        {/* hộp menu ở góc phải dưới AppBar */}
+                        <View
+                            pointerEvents="box-none"
+                            style={styles.menuWrapper}
+                        >
+                            <Surface style={styles.menuSurface} elevation={4}>
+                                <List.Item
+                                    title="Trang chủ"
+                                    onPress={handleGoHome}
+                                />
+                                <List.Item
+                                    title="Đăng xuất"
+                                    onPress={handleLogout}
+                                />
+                            </Surface>
+                        </View>
+                    </View>
+                )}
+            </Portal>
+        </>
     );
 }
+
+const styles = StyleSheet.create({
+    menuWrapper: {
+        position: 'absolute',
+        top: APPBAR_HEIGHT, // ngay dưới AppBar
+        right: 8,
+    },
+    menuSurface: {
+        minWidth: 150,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+});

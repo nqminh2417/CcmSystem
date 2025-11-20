@@ -9,7 +9,9 @@ type Props = NativeStackScreenProps<RootStackParamList, typeof Routes.Login>;
 export function LoginScreen({ navigation }: Props) {
     const handleLogin = () => {
         // TODO: sau này bạn xử lý login thật ở đây
-        navigation.push(Routes.Home); // hoặc navigation.navigate('Home');
+        // Nếu không muốn quay lại màn Login nữa thì dùng replace:
+        // navigation.replace(Routes.Home);
+        navigation.push(Routes.Home);
     };
 
     return (
