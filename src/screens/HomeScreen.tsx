@@ -1,25 +1,18 @@
 // src/screens/HomeScreen.tsx
 
-import { StyleSheet, Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function HomeScreen() {
     return (
-        <SafeAreaView
-            style={styles.container}
-            // AppBar đang dùng header của React Navigation ở trên,
-            // nên ở đây mình chỉ cần safe area cho 3 cạnh dưới / trái / phải
-            edges={['left', 'right', 'bottom']}
-        >
-            <Text style={styles.title}>Home Screen</Text>
-            <Text>Chào mừng bạn đã login thành công 👋</Text>
-        </SafeAreaView>
+        <View className="flex-1 items-center justify-center bg-slate-100">
+            <Text className="text-lg font-bold text-emerald-700">
+                Hello NativeWind v4
+            </Text>
+            <Text className="mt-2 text-slate-600">
+                Đây là màn hình Home dùng Tailwind.
+            </Text>
+        </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: { padding: 16, alignItems: 'center' },
-    title: { fontSize: 22, fontWeight: '700', marginVertical: 16 },
-});
