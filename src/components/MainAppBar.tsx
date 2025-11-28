@@ -1,9 +1,11 @@
 import { Appbar, List, Portal, Surface, useTheme, } from 'react-native-paper';
-import { Pressable, StyleSheet, View, } from 'react-native';
+import { Image, Pressable, StyleSheet, View, } from 'react-native';
 
+import { HeaderInfoBar } from './HeaderInfoBar';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { Routes } from '../navigation/routes';
+import logo from '../assets/images/logo-ism.png';
 
 const APPBAR_HEIGHT = 56; // chiều cao Appbar.Header mặc định
 
@@ -41,7 +43,7 @@ export function MainAppBar({
         <>
             <Appbar.Header
                 statusBarHeight={0}
-                mode="center-aligned"
+                mode="small"
                 elevated
                 style={{ backgroundColor: theme.colors.primary }}
             >
@@ -52,10 +54,20 @@ export function MainAppBar({
                     />
                 )}
 
+                <Image
+                    source={logo}
+                    style={{ width: 24, height: 24, marginRight: 8 }}
+                    resizeMode="contain"
+                />
+
+                {/* Giữa: title màn hình */}
                 <Appbar.Content
                     title={title}
                     titleStyle={{ color: '#fff', fontWeight: '700' }}
                 />
+
+                {/* Phải: info nhỏ + nút menu */}
+                <HeaderInfoBar />
 
                 <Appbar.Action
                     icon="dots-vertical"
