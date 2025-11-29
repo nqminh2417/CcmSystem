@@ -92,6 +92,7 @@ export function HomeScreen() {
                         style={{ backgroundColor: theme.colors.error }}
                         onPress={() =>
                             showError({
+                                title: 'Lỗi Có lỗi xảy ra, vui lòng thử lại.',
                                 // message: 'Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui liệu thuese. Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui liệu thử lại.  Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.',
                                 message: 'Có lỗi xảy ra, vui lòng thử lại.',
                             })
@@ -115,8 +116,10 @@ export function HomeScreen() {
                         style={{ backgroundColor: theme.colors.secondary }}
                         onPress={() =>
                             showBottomSheet({
-                                title: 'Bottom sheet',
-                                message: 'Đây là thông báo kiểu bottom sheet.',
+                                // title: 'Bottom sheet',
+                                title: 'Bottom sheet Có lỗi xảy ra, vui lòng thử lại.',
+                                message: 'Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui lòng thử lại. Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui liệu thuese. Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui liệu thử lại.  Có lỗi xảy ra, vui liệu thử lại. Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.Có lỗi xảy ra, vui lòng thử lại.',
+                                // message: 'Đây là thông báo kiểu bottom sheet.',
                             })
                         }
                     >

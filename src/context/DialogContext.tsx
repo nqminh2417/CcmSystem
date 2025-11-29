@@ -23,8 +23,9 @@ import {
     type GestureResponderEvent,
 } from 'react-native';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DIALOG_WIDTH = Math.min(SCREEN_WIDTH * 0.86, 360);
+const SHEET_MAX_HEIGHT = SCREEN_HEIGHT * 0.45;
 
 // vùng message: mặc định ~3 dòng, tối đa ~8 dòng
 const MESSAGE_LINE_HEIGHT = 20;     // 20px một dòng là khá dễ đọc
@@ -206,7 +207,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                         )}
 
                         {current.title && (
-                            <Dialog.Title style={[{ fontSize: 26, fontWeight: '700' }, titleAlign === 'center' && { textAlign: 'center' },]}>{current.title}</Dialog.Title>
+                            <Dialog.Title style={[{ fontSize: 24, fontWeight: '700' }, titleAlign === 'center' && { textAlign: 'center' },]}>{current.title}</Dialog.Title>
                         )}
 
                         {current.message && (
@@ -224,7 +225,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                                     }}
                                     showsVerticalScrollIndicator={true}
                                 >
-                                    <Text variant="bodyMedium" style={{ lineHeight: MESSAGE_LINE_HEIGHT, marginTop: 2 }}>
+                                    <Text variant="bodyMedium" style={{ lineHeight: MESSAGE_LINE_HEIGHT }}>
                                         {current.message}
                                     </Text>
                                 </ScrollView>
@@ -251,12 +252,13 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                 {/* Bottom Sheet đơn giản */}
                 {current && isBottomSheet && (
                     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                        {/* bấm bên ngoài để đóng */}
                         <Pressable
                             style={StyleSheet.absoluteFill}
                             onPress={hideCurrent}
                         />
                         <View pointerEvents="box-none" style={styles.sheetWrapper}>
-                            <Surface style={styles.sheetSurface} elevation={4}>
+                            <Surface style={[styles.sheetSurface, { maxHeight: SHEET_MAX_HEIGHT }]} elevation={4}>
                                 {current.title && (
                                     <Text variant="bodyMedium"
                                         style={[
@@ -268,11 +270,20 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                                     </Text>
                                 )}
                                 {current.message && (
-                                    <Text variant="bodyMedium"
-                                        style={{ color: theme.colors.onSurfaceVariant }}
+                                    <ScrollView
+                                        style={styles.sheetMessageScroll}
+                                        contentContainerStyle={styles.sheetMessageContent}
+                                        showsVerticalScrollIndicator={true}
                                     >
-                                        {current.message}
-                                    </Text>
+                                        <Text variant="bodyMedium"
+                                            style={[
+                                                styles.sheetMessageText,
+                                                { color: theme.colors.onSurfaceVariant },
+                                            ]}
+                                        >
+                                            {current.message}
+                                        </Text>
+                                    </ScrollView>
                                 )}
 
                                 <View style={styles.sheetActions}>
@@ -292,22 +303,36 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 0,
+        bottom: 10,
         padding: 16,
     },
     sheetSurface: {
-        borderRadius: 16,
+        borderRadius: 12,
         paddingHorizontal: 16,
         paddingTop: 16,
         paddingBottom: 8,
+        alignSelf: 'stretch',
     },
     sheetTitle: {
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: '700',
+        lineHeight: 28,
+        marginBottom: 2,
+        paddingBottom: 8,
+    },
+    sheetMessageScroll: {
         marginBottom: 8,
+        flexShrink: 1,
+    },
+    sheetMessageContent: {
+        paddingBottom: 4,
+    },
+    sheetMessageText: {
+        fontSize: 14,
+        lineHeight: 20,   // 3 dòng ≈ 60px
     },
     sheetActions: {
-        marginTop: 12,
+        // marginTop: 12,
         flexDirection: 'row',
         justifyContent: 'flex-end',
     },
