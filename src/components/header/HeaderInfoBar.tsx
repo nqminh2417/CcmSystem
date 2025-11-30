@@ -3,8 +3,8 @@
 import { Text, View } from 'react-native';
 
 import React from 'react';
-import { usePaperAppTheme } from '../context/ThemeContext';
-import { useSessionContext } from '../context/SessionContext';
+import { usePaperAppTheme } from '../../context/ThemeContext';
+import { useSessionContext } from '../../context/SessionContext';
 
 export const HeaderInfoBar: React.FC = () => {
     const { userName, warehouseCode, plantCode, teamCode } = useSessionContext();

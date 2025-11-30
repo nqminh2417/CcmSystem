@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDialog } from '../context/DialogContext';
 import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
 import { usePaperAppTheme } from '../context/ThemeContext';
+import { useSelection } from '../context/SelectionContext';
 
 export function HomeScreen() {
     const theme = usePaperAppTheme();
@@ -18,6 +19,70 @@ export function HomeScreen() {
         showConfirm,
         showBottomSheet,
     } = useDialog();
+
+    const { openSelection } = useSelection();
+
+    // Demo dữ liệu kho
+    const warehouseItems = React.useMemo(
+        () => [
+            { id: 'H100', label: 'H100', subLabel: 'Kho H100' },
+            { id: 'R200', label: 'R200', subLabel: 'Kho H100' },
+            { id: 'R300', label: 'R300', subLabel: 'Kho H100' },
+            { id: 'R400', label: 'R400', subLabel: 'Kho R300' },
+            { id: 'R500', label: 'R500', subLabel: 'Kho R300' },
+            { id: 'R600', label: 'R600', subLabel: 'Kho R300' },
+            { id: 'R700', label: 'R700', subLabel: 'Kho R300' },
+            { id: 'R800', label: 'R800', subLabel: 'Kho R300' },
+            { id: 'R900', label: 'R900', subLabel: 'Kho R300' },
+            { id: 'H200', label: 'H200', subLabel: 'Kho R300' },
+        ],
+        [],
+    );
+
+    // const warehouseItems = React.useMemo(
+    //     () => [
+    //         { id: 'H100', label: 'H100', },
+    //         { id: 'R200', label: 'R200', },
+    //         { id: 'R300', label: 'R300', },
+    //         { id: 'R400', label: 'R400', },
+    //         { id: 'R500', label: 'R500', },
+    //         { id: 'R700', label: 'R700', },
+    //         { id: 'R800', label: 'R800', },
+    //         { id: 'R900', label: 'R900', },
+    //         { id: 'H200', label: 'H200', },
+    //     ],
+    //     [],
+    // );
+
+    const handleSelectSingle = () => {
+        openSelection({
+            title: 'Chọn 1 kho (Dialog)',
+            subtitle: 'Demo chọn 1 kho duy nhất',
+            items: warehouseItems,
+            mode: 'single',
+            variant: 'dialog',
+            confirmLabel: 'OK',
+            cancelLabel: 'Huỷ',
+            onConfirm: (ids) => {
+                console.log('Chọn 1 kho:', ids);
+            },
+        });
+    };
+
+    const handleSelectMultiple = () => {
+        openSelection({
+            title: 'Chọn nhiều kho (Bottom sheet)',
+            subtitle: 'Demo chọn nhiều kho',
+            items: warehouseItems,
+            mode: 'multiple',
+            variant: 'bottomSheet',
+            confirmLabel: 'Áp dụng',
+            cancelLabel: 'Đóng',
+            onConfirm: (ids) => {
+                console.log('Chọn nhiều kho:', ids);
+            },
+        });
+    };
 
     const handleTestConfirm = () => {
         showConfirm({
@@ -56,7 +121,7 @@ export function HomeScreen() {
             style={{ flex: 1, backgroundColor: theme.colors.background }}
             edges={['top', 'right', 'left', 'bottom']}
         >
-            <View className="flex-1 items-center justify-center px-4 space-y-4">
+            <View className="flex-1 items-center  px-4 space-y-4">
                 <Text
                     className="text-xl font-extrabold"
                     style={{ color: primaryText }}
@@ -145,6 +210,26 @@ export function HomeScreen() {
                     >
                         <Text style={{ color: theme.colors.onTertiary }}>
                             Test Alert
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View className="mt-6 w-full gap-3">
+                    <TouchableOpacity
+                        className="py-3 rounded-lg items-center"
+                        style={{ backgroundColor: theme.colors.primary }}
+                        onPress={handleSelectSingle}>
+                        <Text>
+                            Chọn 1 kho (Dialog)
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        className="py-3 rounded-lg items-center"
+                        style={{ backgroundColor: theme.colors.secondaryContainer }}
+                        onPress={handleSelectMultiple}>
+                        <Text>
+                            Chọn nhiều kho (Bottom sheet)
                         </Text>
                     </TouchableOpacity>
                 </View>

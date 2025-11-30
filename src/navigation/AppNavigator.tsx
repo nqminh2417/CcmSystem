@@ -6,7 +6,7 @@ import { RootStackParamList, Routes } from './routes';
 
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
-import { MainAppBar } from '../components/MainAppBar';
+import { MainAppBar } from '../components/header/MainAppBar';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { SettingsScreen } from '../screens/SettingsScreen';
