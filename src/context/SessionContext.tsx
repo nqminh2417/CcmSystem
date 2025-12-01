@@ -15,7 +15,7 @@ const SessionContext = createContext<SessionContextValue | undefined>(undefined)
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
     // tạm hard-code; sau này bạn set từ màn Login / API / mmkv
-    const [userName, setUserName] = useState('Minh');
+    const [userName, setUserName] = useState('Nguyễn Thị Thanh Tuyền');
     const [warehouseCode, setWarehouseCode] = useState('H100');
     const [plantCode, setPlantCode] = useState('F1');
     const [teamCode, setTeamCode] = useState('CCM');
