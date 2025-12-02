@@ -9,6 +9,7 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { MainAppBar } from '../components/header/MainAppBar';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
+import { ReceiveGoodsScreen } from '../screens/ReceiveGoodsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { useAppTheme } from '../context/ThemeContext';
 
@@ -31,6 +32,7 @@ export default function AppNavigator() {
                 <Stack.Screen name={Routes.Login} component={LoginScreen} options={{ headerShown: false, }} />
                 <Stack.Screen name={Routes.Home} component={HomeScreen} options={{ title: 'Trang chủ' }} />
                 <Stack.Screen name={Routes.Settings} component={SettingsScreen} options={{ title: 'Settings' }} />
+                <Stack.Screen name={Routes.ReceiveGoods} component={ReceiveGoodsScreen} options={{ title: 'Nhận hàng' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

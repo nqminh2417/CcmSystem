@@ -17,7 +17,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     // tạm hard-code; sau này bạn set từ màn Login / API / mmkv
     const [userName, setUserName] = useState('Nguyễn Thị Thanh Tuyền');
     const [warehouseCode, setWarehouseCode] = useState('H100');
-    const [plantCode, setPlantCode] = useState('F1');
+    const [plantCode, setPlantCode] = useState('RACH GIA A');
     const [teamCode, setTeamCode] = useState('CCM');
 
     return (
