@@ -4,12 +4,14 @@
 import { NativeStackHeaderProps, createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList, Routes } from './routes';
 
+import { AddQrTemplateScreen } from '../features/qr/screens/AddQrTemplateScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { MainAppBar } from '../components/header/MainAppBar';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { ReceiveGoodsScreen } from '../screens/ReceiveGoodsScreen';
+import { ScanQrReceiveScreen } from '../screens/ScanQrReceiveScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { useAppTheme } from '../context/ThemeContext';
 
@@ -33,6 +35,8 @@ export default function AppNavigator() {
                 <Stack.Screen name={Routes.Home} component={HomeScreen} options={{ title: 'Trang chủ' }} />
                 <Stack.Screen name={Routes.Settings} component={SettingsScreen} options={{ title: 'Settings' }} />
                 <Stack.Screen name={Routes.ReceiveGoods} component={ReceiveGoodsScreen} options={{ title: 'Nhận hàng' }} />
+                <Stack.Screen name={Routes.ScanQrReceive} component={ScanQrReceiveScreen} options={{ title: 'Scan QR Code' }} />
+                <Stack.Screen name={Routes.AddQrTemplate} component={AddQrTemplateScreen} options={{ title: 'Thêm mẫu QR' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
