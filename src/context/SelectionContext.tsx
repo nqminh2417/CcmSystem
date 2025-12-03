@@ -65,24 +65,23 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const closeSelection = useCallback(() => {
-        setState(prev => {
-            if (prev && prev.onCancel) {
-                prev.onCancel();
-            }
-            return null;
-        });
+        if (state?.onCancel) {
+            state.onCancel();
+        }
+        setState(null);
         setSelectedIds([]);
-    }, []);
+    }, [state]);
 
     const handleConfirm = useCallback(async () => {
-        setState(prev => {
-            if (prev && prev.onConfirm) {
-                prev.onConfirm(selectedIds);
-            }
-            return null;
-        });
+        // 1. Gọi callback của caller (MainAppBar, v.v.)
+        if (state?.onConfirm) {
+            await state.onConfirm(selectedIds);
+        }
+
+        // 2. Sau đó mới clear state của SelectionProvider
+        setState(null);
         setSelectedIds([]);
-    }, [selectedIds]);
+    }, [state, selectedIds]);
 
     const openSelection = useCallback((config: SelectionConfig) => {
         const {
