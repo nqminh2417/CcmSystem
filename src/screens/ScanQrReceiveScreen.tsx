@@ -1,5 +1,6 @@
 import { Button, Text, TextInput } from 'react-native-paper';
 import {
+    FlatList,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -15,7 +16,7 @@ import { usePaperAppTheme } from '../context/ThemeContext';
 
 // route params
 type ScanQrReceiveRouteParams = {
-    poCode: string;
+    poNo: string;
 };
 
 // tạm thời 3 cột: QR Raw, Parsed Value, Status (sau bạn đổi tên / cấu trúc tuỳ ý)
@@ -40,7 +41,7 @@ export function ScanQrReceiveScreen() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
 
-    const poCode = (route.params as ScanQrReceiveRouteParams)?.poCode ?? '';
+    const poNo = (route.params as ScanQrReceiveRouteParams)?.poNo ?? '';
 
     // TODO: sau này rows sẽ được cập nhật khi máy scan bắn data vào
     const [rows] = useState<ScanRow[]>([
@@ -64,16 +65,61 @@ export function ScanQrReceiveScreen() {
         },
     ]);
 
-    const handleRowPress = (row: ScanRow) => {
-        // Đi tới AddQrTemplateScreen, truyền poCode
-        // sau này nếu cần truyền thêm info của row thì nhét vào params luôn
-        navigation.navigate(Routes.AddQrTemplate as never, { poCode } as never);
-    };
-
     const handleSaveReceive = () => {
         // TODO: sau này gọi API "Lưu nhận hàng"
-        console.log('Lưu nhận hàng cho PO: ', poCode);
+        // Tạm thời điều hướng sang AddQrTemplateScreen
+        console.log('Lưu nhận hàng cho PO: ', poNo);
+        navigation.navigate(Routes.AddQrTemplate, { poNo });
     };
+
+    const renderRow = ({ item }: { item: ScanRow }) => (
+        <View
+            style={[
+                styles.row,
+                {
+                    backgroundColor: theme.colors.surface,
+                    borderBottomWidth: StyleSheet.hairlineWidth,
+                    borderBottomColor:
+                        theme.colors.outlineVariant ?? theme.colors.outline,
+                },
+            ]}
+        >
+            <Text
+                style={[
+                    styles.cellText,
+                    { width: COL_WIDTH.qrRaw, color: primaryText },
+                ]}
+                numberOfLines={1}
+            >
+                {item.qrRaw}
+            </Text>
+            <Text
+                style={[
+                    styles.cellText,
+                    { width: COL_WIDTH.parsedValue, color: secondaryText },
+                ]}
+                numberOfLines={1}
+            >
+                {item.parsedValue}
+            </Text>
+            <Text
+                style={[
+                    styles.cellText,
+                    {
+                        width: COL_WIDTH.status,
+                        color:
+                            item.status === 'OK'
+                                ? theme.colors.primary
+                                : theme.colors.error,
+                        textAlign: 'center',
+                    },
+                ]}
+                numberOfLines={1}
+            >
+                {item.status}
+            </Text>
+        </View>
+    );
 
     return (
         <SafeAreaView
@@ -81,12 +127,13 @@ export function ScanQrReceiveScreen() {
             edges={['right', 'left', 'bottom']}
         >
             <View style={styles.container}>
-                {/* PO Code block */}
-                <View style={styles.poBlock}>
-                    <Text style={[styles.label, { color: primaryText }]}>PO Code</Text>
+                <View style={styles.poRow}>
+                    <Text style={[styles.label, { color: primaryText, marginBottom: 0 }]}>
+                        PO No.
+                    </Text>
                     <TextInput
                         mode="outlined"
-                        value={poCode}
+                        value={poNo}
                         editable={false}
                         selectTextOnFocus={false}
                         style={styles.poInput}
@@ -106,123 +153,78 @@ export function ScanQrReceiveScreen() {
                         Kết quả quét QR
                     </Text>
 
-                    {/* Vertical scroll nếu nhiều dòng */}
-                    <ScrollView style={{ flex: 1 }}>
-                        {/* Horizontal scroll để giữ cột thẳng, tràn sang phải thì kéo */}
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator
-                            style={{
-                                borderWidth: StyleSheet.hairlineWidth,
-                                borderColor:
-                                    theme.colors.outlineVariant ?? theme.colors.outline,
-                                borderRadius: 8,
-                            }}
-                        >
-                            <View style={{ width: TABLE_WIDTH }}>
-                                {/* Header */}
-                                <View
+                    {/* Cuộn ngang khi bảng rộng, FlatList cuộn dọc khi nhiều dòng */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        style={{
+                            borderWidth: StyleSheet.hairlineWidth,
+                            borderColor:
+                                theme.colors.outlineVariant ?? theme.colors.outline,
+                            borderRadius: 8,
+                            flex: 1,
+                        }}
+                    >
+                        <View style={{ width: TABLE_WIDTH }}>
+                            {/* Header */}
+                            <View
+                                style={[
+                                    styles.row,
+                                    {
+                                        backgroundColor:
+                                            theme.colors.surfaceVariant ?? theme.colors.surface,
+                                        borderBottomWidth: StyleSheet.hairlineWidth,
+                                        borderBottomColor:
+                                            theme.colors.outlineVariant ??
+                                            theme.colors.outline,
+                                    },
+                                ]}
+                            >
+                                <Text
                                     style={[
-                                        styles.row,
+                                        styles.headerCell,
+                                        { width: COL_WIDTH.qrRaw, color: primaryText },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    QR Raw
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.headerCell,
                                         {
-                                            backgroundColor:
-                                                theme.colors.surfaceVariant ?? theme.colors.surface,
-                                            borderBottomWidth: StyleSheet.hairlineWidth,
-                                            borderBottomColor:
-                                                theme.colors.outlineVariant ?? theme.colors.outline,
+                                            width: COL_WIDTH.parsedValue,
+                                            color: primaryText,
                                         },
                                     ]}
+                                    numberOfLines={1}
                                 >
-                                    <Text
-                                        style={[
-                                            styles.headerCell,
-                                            { width: COL_WIDTH.qrRaw, color: primaryText },
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        QR Raw
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.headerCell,
-                                            { width: COL_WIDTH.parsedValue, color: primaryText },
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        Parsed Value
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.headerCell,
-                                            {
-                                                width: COL_WIDTH.status,
-                                                color: primaryText,
-                                                textAlign: 'center',
-                                            },
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        Status
-                                    </Text>
-                                </View>
-
-                                {/* Rows (clickable) */}
-                                {rows.map(row => (
-                                    <Pressable
-                                        key={row.id}
-                                        onPress={() => handleRowPress(row)}
-                                        android_ripple={{ color: theme.colors.surfaceVariant }}
-                                        style={({ pressed }) => [
-                                            styles.row,
-                                            {
-                                                backgroundColor: pressed
-                                                    ? theme.colors.surfaceVariant
-                                                    : theme.colors.surface,
-                                                borderBottomWidth: StyleSheet.hairlineWidth,
-                                                borderBottomColor:
-                                                    theme.colors.outlineVariant ??
-                                                    theme.colors.outline,
-                                            },
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.cellText,
-                                                { width: COL_WIDTH.qrRaw, color: primaryText },
-                                            ]}
-                                            numberOfLines={1}
-                                        >
-                                            {row.qrRaw}
-                                        </Text>
-                                        <Text
-                                            style={[
-                                                styles.cellText,
-                                                { width: COL_WIDTH.parsedValue, color: secondaryText },
-                                            ]}
-                                            numberOfLines={1}
-                                        >
-                                            {row.parsedValue}
-                                        </Text>
-                                        <Text
-                                            style={[
-                                                styles.cellText,
-                                                {
-                                                    width: COL_WIDTH.status,
-                                                    color:
-                                                        row.status === 'OK'
-                                                            ? theme.colors.primary
-                                                            : theme.colors.error,
-                                                    textAlign: 'center',
-                                                },
-                                            ]}
-                                            numberOfLines={1}
-                                        >
-                                            {row.status}
-                                        </Text>
-                                    </Pressable>
-                                ))}
+                                    Parsed Value
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.headerCell,
+                                        {
+                                            width: COL_WIDTH.status,
+                                            color: primaryText,
+                                            textAlign: 'center',
+                                        },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    Status
+                                </Text>
                             </View>
-                        </ScrollView>
+
+                            {/* Danh sách rows – không click, chỉ hiển thị */}
+                            <FlatList
+                                data={rows}
+                                keyExtractor={item => item.id}
+                                renderItem={renderRow}
+                                style={{}}
+                                contentContainerStyle={{}}
+                            />
+                        </View>
                     </ScrollView>
                 </View>
 
@@ -244,16 +246,24 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
-    poBlock: {
+    // giống style searchRow ở ReceiveGoods nhưng cho label + input
+    poRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 12,
     },
     label: {
         fontSize: 14,
         fontWeight: '600',
-        marginBottom: 4,
+        marginRight: 8,
     },
     poInput: {
-        height: 44,
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        fontSize: 14,
     },
     gridWrapper: {
         flex: 1,
