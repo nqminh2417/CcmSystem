@@ -17,7 +17,7 @@ export type RootStackParamList = {
     [Routes.Home]: undefined;
     [Routes.Settings]: undefined;
     [Routes.ReceiveGoods]: undefined;
-    [Routes.ScanQrReceive]: { poCode: string };
-    [Routes.AddQrTemplate]: { poCode: string };
+    [Routes.ScanQrReceive]: { poNo: string };
+    [Routes.AddQrTemplate]: { poNo: string };
     // [Routes.BoxHistory]: { boxId: string }; // ví dụ nếu sau này có param
 };

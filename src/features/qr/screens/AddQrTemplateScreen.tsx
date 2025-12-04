@@ -12,13 +12,13 @@ import { useRoute } from '@react-navigation/native';
 // Nếu bạn có RootStackParamList thì type cho chuẩn;
 // ở đây để any cho đỡ vướng TS, bạn có thể chỉnh lại sau.
 type AddQrTemplateRouteParams = {
-    poCode: string;
+    poNo: string;
 };
 
 export function AddQrTemplateScreen() {
     const theme = usePaperAppTheme();
     const route = useRoute<any>();
-    const poCode = (route.params as AddQrTemplateRouteParams)?.poCode ?? '';
+    const poCode = (route.params as AddQrTemplateRouteParams)?.poNo ?? '';
 
     const handleSaveTemplate = () => {
         // TODO: sau này gọi API + lưu mmkv
