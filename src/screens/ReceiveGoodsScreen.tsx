@@ -1,279 +1,329 @@
 // src/screens/ReceiveGoodsScreen.tsx
 
+import React from 'react';
 import {
-    ActivityIndicator,
-    Keyboard,
+    FlatList,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
-import React, { useState } from 'react';
-
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDialog } from '../context/DialogContext';
-import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Button } from 'react-native-paper';
+
+import { Routes, type RootStackParamList } from '../navigation/routes';
 import { usePaperAppTheme } from '../context/ThemeContext';
 
-type PoRow = {
-    poNumber: string;
-    col2: string;
-    col3: string;
+type Props = NativeStackScreenProps<RootStackParamList, 'ReceiveGoods'>;
+
+type PoItem = {
+    poCode: string;
+    supplier: string;
+    extra: string;
 };
 
-export function ReceiveGoodsScreen() {
+// Demo data – sau này thay bằng data từ API
+const MOCK_POS: PoItem[] = [
+    { poCode: 'PO001234', supplier: 'Nhà cung cấp A', extra: 'Cột 3 demo' },
+    { poCode: 'PO001235', supplier: 'Nhà cung cấp B', extra: 'Cột 3 demo' },
+    { poCode: 'PO001236', supplier: 'Nhà cung cấp C', extra: 'Cột 3 demo' },
+];
+
+// width cho từng cột – header & row dùng CHUNG
+const COL_WIDTH = {
+    poCode: 140,
+    supplier: 220,
+    extra: 180,
+};
+
+const TABLE_WIDTH = COL_WIDTH.poCode + COL_WIDTH.supplier + COL_WIDTH.extra;
+
+export const ReceiveGoodsScreen: React.FC<Props> = ({ navigation }) => {
     const theme = usePaperAppTheme();
-    const { primaryText, secondaryText } = useHighContrastTextColors();
-    const { showInfo } = useDialog();
 
-    const [keyword, setKeyword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<PoRow[]>([]);
+    const [keyword, setKeyword] = React.useState('');
+    const [data, setData] = React.useState<PoItem[]>(MOCK_POS);
+    const [selectedPoCode, setSelectedPoCode] = React.useState<string | null>(null);
 
-    const handleScanQr = () => {
-        // TODO: mở flow scan QR thực tế
-        showInfo({
-            title: 'QR code',
-            message: 'Chức năng quét QR sẽ được tích hợp sau.',
-            autoCloseMs: 2000,
-        });
-    };
-
-    const handleSearch = async () => {
-        const q = keyword.trim();
-        if (!q) {
-            showInfo({
-                title: 'Thông báo',
-                message: 'Vui lòng nhập hoặc quét mã trước khi tìm.',
-            });
+    const handleSearch = () => {
+        const kw = keyword.trim().toLowerCase();
+        if (!kw) {
+            setData(MOCK_POS);
+            setSelectedPoCode(null);
             return;
         }
 
-        Keyboard.dismiss();
-        setLoading(true);
+        const filtered = MOCK_POS.filter(
+            item =>
+                item.poCode.toLowerCase().includes(kw) ||
+                item.supplier.toLowerCase().includes(kw),
+        );
+        setData(filtered);
 
-        try {
-            // TODO: sau này gọi BE với q và setResults(response)
-            // Tạm thời dùng dữ liệu giả demo
-            const all: PoRow[] = [
-                { poNumber: 'PO123456', col2: 'Cột 2 demo A', col3: 'Cột 3 demo A' },
-                { poNumber: 'PO234567', col2: 'Cột 2 demo B', col3: 'Cột 3 demo B' },
-                { poNumber: 'PO345678', col2: 'Cột 2 demo C', col3: 'Cột 3 demo C' },
-            ];
-
-            const filtered = all.filter(row =>
-                row.poNumber.toLowerCase().includes(q.toLowerCase()),
-            );
-
-            setResults(filtered);
-        } finally {
-            setLoading(false);
+        // Nếu PO đang chọn không còn trong list thì clear selection
+        if (selectedPoCode && !filtered.some(x => x.poCode === selectedPoCode)) {
+            setSelectedPoCode(null);
         }
+    };
+
+    const handleGoScan = () => {
+        if (!selectedPoCode) return;
+        navigation.navigate(Routes.ScanQrReceive, { poCode: selectedPoCode });
+    };
+
+    const renderRow = ({ item }: { item: PoItem }) => {
+        const selected = item.poCode === selectedPoCode;
+
+        return (
+            <Pressable
+                onPress={() => setSelectedPoCode(item.poCode)}
+                android_ripple={{ color: theme.colors.surfaceVariant }}
+                style={({ pressed }) => [
+                    styles.row,
+                    {
+                        backgroundColor: selected
+                            ? theme.colors.secondaryContainer
+                            : pressed
+                                ? theme.colors.surfaceVariant
+                                : theme.colors.surface,
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                        borderBottomColor:
+                            theme.colors.outlineVariant ?? theme.colors.outline,
+                    },
+                ]}
+            >
+                <Text
+                    style={[
+                        styles.cellText,
+                        { width: COL_WIDTH.poCode, color: theme.colors.onSurface },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {item.poCode}
+                </Text>
+                <Text
+                    style={[
+                        styles.cellText,
+                        { width: COL_WIDTH.supplier, color: theme.colors.onSurfaceVariant },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {item.supplier}
+                </Text>
+                <Text
+                    style={[
+                        styles.cellText,
+                        { width: COL_WIDTH.extra, color: theme.colors.onSurfaceVariant },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {item.extra}
+                </Text>
+            </Pressable>
+        );
     };
 
     return (
         <SafeAreaView
             style={{ flex: 1, backgroundColor: theme.colors.background }}
-            edges={['top', 'right', 'left', 'bottom']}
+            edges={['left', 'right', 'bottom']}
         >
-            <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16 }}>
-                {/* Tiêu đề nhỏ của màn Nhận hàng */}
-                <Text
-                    style={{
-                        fontSize: 16,
-                        fontWeight: '600',
-                        color: primaryText,
-                        marginBottom: 12,
-                    }}
-                >
-                    Nhập mã PO
+            <View style={styles.container}>
+                {/* Ô nhập / scan PO */}
+                <Text style={[styles.label, { color: theme.colors.onBackground }]}>
+                    Tìm PO
                 </Text>
 
-                {/* Ô nhập + nút QR */}
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginBottom: 8,
-                    }}
-                >
+                <View style={styles.searchRow}>
                     <TextInput
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: theme.colors.outline,
+                                color: theme.colors.onSurface,
+                                backgroundColor: theme.colors.surface,
+                            },
+                        ]}
+                        placeholder="Nhập vài ký tự PO hoặc text quét được."
+                        placeholderTextColor={theme.colors.onSurfaceDisabled}
                         value={keyword}
                         onChangeText={setKeyword}
-                        placeholder="Nhập / quét mã PO hoặc mã QR"
-                        placeholderTextColor={theme.colors.outline}
-                        style={{
-                            flex: 1,
-                            borderWidth: 1,
-                            borderColor: theme.colors.outline,
-                            borderRadius: 8,
-                            paddingHorizontal: 12,
-                            paddingVertical: 10,
-                            color: primaryText,
-                        }}
                         returnKeyType="search"
                         onSubmitEditing={handleSearch}
                     />
-
-                    <TouchableOpacity
-                        onPress={handleScanQr}
-                        activeOpacity={0.8}
-                        style={{
-                            marginLeft: 8,
-                            paddingHorizontal: 12,
-                            paddingVertical: 10,
-                            borderRadius: 8,
-                            backgroundColor:
-                                theme.colors.secondaryContainer ?? theme.colors.surface,
-                        }}
+                    <Pressable
+                        onPress={handleSearch}
+                        style={[
+                            styles.searchButton,
+                            { backgroundColor: theme.colors.primary },
+                        ]}
                     >
                         <Text
-                            style={{
-                                fontWeight: '600',
-                                color:
-                                    theme.colors.onSecondaryContainer ?? theme.colors.primary,
-                            }}
+                            style={[
+                                styles.searchButtonText,
+                                { color: theme.colors.onPrimary },
+                            ]}
                         >
-                            QR
+                            Tìm
                         </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
-                {/* Nút tìm kiếm */}
-                <TouchableOpacity
-                    onPress={handleSearch}
-                    activeOpacity={0.85}
-                    style={{
-                        marginTop: 4,
-                        marginBottom: 12,
-                        borderRadius: 999,
-                        backgroundColor: theme.colors.primary,
-                        paddingVertical: 10,
-                        alignItems: 'center',
-                    }}
+                {/* Grid PO */}
+                <Text
+                    style={[
+                        styles.resultTitle,
+                        { color: theme.colors.onBackground },
+                    ]}
                 >
-                    {loading ? (
-                        <ActivityIndicator color={theme.colors.onPrimary} />
-                    ) : (
-                        <Text
-                            style={{
-                                color: theme.colors.onPrimary,
-                                fontWeight: '700',
-                                fontSize: 15,
-                            }}
-                        >
-                            Tìm kiếm PO
-                        </Text>
-                    )}
-                </TouchableOpacity>
+                    Kết quả PO
+                </Text>
 
-                {/* Khu vực bảng data – tạm render list đơn giản */}
-                <View style={{ flex: 1, marginTop: 8 }}>
-                    {results.length === 0 && !loading ? (
-                        <Text style={{ color: secondaryText }}>
-                            Chưa có dữ liệu. Nhập hoặc quét mã rồi bấm &quot;Tìm kiếm PO&quot;.
-                        </Text>
-                    ) : (
-                        <View>
-                            {/* Header bảng (3 cột) */}
+                <View style={styles.gridWrapper}>
+                    {/* Scroll ngang để cột thẳng + tràn phải thì kéo */}
+                    <View
+                        style={{
+                            borderWidth: StyleSheet.hairlineWidth,
+                            borderColor:
+                                theme.colors.outlineVariant ?? theme.colors.outline,
+                            borderRadius: 8,
+                            overflow: 'hidden',
+                            flex: 1,
+                        }}
+                    >
+                        {/* Header + FlatList cùng nằm trong View width = TABLE_WIDTH */}
+                        <View style={{ width: TABLE_WIDTH }}>
+                            {/* Header */}
                             <View
                                 style={[
                                     styles.row,
                                     {
-                                        borderBottomWidth: 1,
+                                        backgroundColor:
+                                            theme.colors.surfaceVariant ?? theme.colors.surface,
+                                        borderBottomWidth: StyleSheet.hairlineWidth,
                                         borderBottomColor:
-                                            theme.colors.outlineVariant ??
-                                            theme.colors.outline,
+                                            theme.colors.outlineVariant ?? theme.colors.outline,
                                     },
                                 ]}
                             >
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        { color: primaryText },
+                                        { width: COL_WIDTH.poCode, color: theme.colors.onSurface },
                                     ]}
+                                    numberOfLines={1}
                                 >
-                                    PO
+                                    PONO
                                 </Text>
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        { color: primaryText },
+                                        { width: COL_WIDTH.supplier, color: theme.colors.onSurface },
                                     ]}
+                                    numberOfLines={1}
                                 >
-                                    Cột 2
+                                    Supplier
                                 </Text>
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        { color: primaryText },
+                                        { width: COL_WIDTH.extra, color: theme.colors.onSurface },
                                     ]}
+                                    numberOfLines={1}
                                 >
-                                    Cột 3
+                                    Thông tin khác
                                 </Text>
                             </View>
 
-                            {/* Dòng dữ liệu – sau này thay bằng component bảng riêng */}
-                            {results.map(row => (
-                                <View
-                                    key={row.poNumber}
-                                    style={[
-                                        styles.row,
-                                        {
-                                            borderBottomWidth: StyleSheet.hairlineWidth,
-                                            borderBottomColor:
-                                                theme.colors.outlineVariant ??
-                                                theme.colors.outline,
-                                        },
-                                    ]}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.cell,
-                                            { color: primaryText },
-                                        ]}
-                                    >
-                                        {row.poNumber}
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.cell,
-                                            { color: secondaryText },
-                                        ]}
-                                    >
-                                        {row.col2}
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.cell,
-                                            { color: secondaryText },
-                                        ]}
-                                    >
-                                        {row.col3}
-                                    </Text>
-                                </View>
-                            ))}
+                            {/* FlatList rows – cuộn dọc, cột dùng chung COL_WIDTH với header */}
+                            <FlatList
+                                data={data}
+                                keyExtractor={item => item.poCode}
+                                renderItem={renderRow}
+                                style={{}}
+                                contentContainerStyle={{}}
+                            />
                         </View>
-                    )}
+                    </View>
                 </View>
+
+                {/* Nút Scan QR Code */}
+                <Button
+                    mode="contained"
+                    onPress={handleGoScan}
+                    disabled={!selectedPoCode}
+                    style={styles.scanButton}
+                >
+                    Scan QR Code
+                </Button>
             </View>
         </SafeAreaView>
     );
-}
+};
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 4,
+    },
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        fontSize: 14,
+    },
+    searchButton: {
+        marginLeft: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 9,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    searchButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    resultTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 8,
+        marginTop: 4,
+    },
+    gridWrapper: {
+        flex: 1,
+        marginBottom: 16,
+    },
     row: {
         flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
         paddingVertical: 6,
     },
     headerCell: {
-        flex: 1,
+        fontSize: 11,
         fontWeight: '700',
-        fontSize: 13,
+        paddingRight: 4,
     },
-    cell: {
-        flex: 1,
-        fontSize: 13,
+    cellText: {
+        fontSize: 11,
+        paddingRight: 4,
+    },
+    scanButton: {
+        alignSelf: 'flex-end', // đổi thành 'stretch' nếu muốn full width
     },
 });

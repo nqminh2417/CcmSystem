@@ -1,16 +1,14 @@
 // src/screens/HomeScreen.tsx
 
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { Routes } from '../navigation/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDialog } from '../context/DialogContext';
 import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
 import { useNavigation } from '@react-navigation/native';
 import { usePaperAppTheme } from '../context/ThemeContext';
-import { useSelection } from '../context/SelectionContext';
 
 type Nav = NativeStackNavigationProp<any>;
 
@@ -58,7 +56,7 @@ export function HomeScreen() {
 
     const handleGoSecond = () => {
         // TODO: đổi Routes.SecondFeature (hoặc gì đó) cho đúng route thật
-        // navigation.navigate(Routes.SecondFeature as never);
+        navigation.navigate(Routes.AddQrTemplate as never);
     };
 
     return (

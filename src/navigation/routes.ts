@@ -6,6 +6,8 @@ export const Routes = {
     Home: 'Home',
     Settings: 'Settings',
     ReceiveGoods: 'ReceiveGoods',
+    ScanQrReceive: 'ScanQrReceive',
+    AddQrTemplate: 'AddQrTemplate',
     // thêm các màn khác ở đây...
 } as const;
 
@@ -15,5 +17,7 @@ export type RootStackParamList = {
     [Routes.Home]: undefined;
     [Routes.Settings]: undefined;
     [Routes.ReceiveGoods]: undefined;
+    [Routes.ScanQrReceive]: { poCode: string };
+    [Routes.AddQrTemplate]: { poCode: string };
     // [Routes.BoxHistory]: { boxId: string }; // ví dụ nếu sau này có param
 };
