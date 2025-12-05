@@ -24,6 +24,7 @@ import {
     type GestureResponderEvent,
 } from 'react-native';
 import { soundPlayer } from '../utils/soundPlayer';
+import { storageUtils } from '../utils/mmkv';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DIALOG_WIDTH = Math.min(SCREEN_WIDTH * 0.86, 360);
@@ -132,10 +133,12 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
     const showError = (opts: DialogBaseOptions) => {
-        const shouldPlay = opts.playSound ?? true;
-        const shouldVibrate = opts.playVibration ?? true; // mặc định rung
+        const shouldPlaySound = opts.playSound ?? true;
 
-        if (shouldPlay) {
+        const globalVibrationEnabled = storageUtils.getVibrationEnabled();
+        const shouldVibrate = globalVibrationEnabled && (opts.playVibration ?? true); // mặc định rung
+
+        if (shouldPlaySound) {
             soundPlayer.playError();
         }
 

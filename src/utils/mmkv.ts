@@ -3,54 +3,52 @@
 
 import { createMMKV } from 'react-native-mmkv';
 
-/**
- * Tạo 2 kho:
- * - appStorage: config/app settings (ip server, version, fac_cd,…)
- * - userStorage: thông tin user (token, profile,…)
- */
+// Chỉ dùng 1 storage duy nhất cho toàn app
+const storage = createMMKV({ id: 'app' });
 
-const appStorage = createMMKV({ id: 'app' });
-const userStorage = createMMKV({ id: 'user' });
-
-// Nếu sau này bạn cần thêm storage riêng, có thể tạo thêm:
-// const temp = createMMKV({ id: 'temp' });
-
-export const mmkv = {
-    appStorage,
-    userStorage,
-};
-
-/**
- * Chỉ cần phía trên là đủ.
- * Dưới đây là ví dụ helper để thao tác với 1 số key cụ thể.
- * ✅ Thêm helper cho warehouseCode
- */
-
+// Khóa dùng trong app (đặt hết ở đây cho dễ kiểm soát)
 const APP_KEYS = {
     warehouseCode: 'warehouseCode',
-    // sau này thêm: serverIp, language, v.v…
+    vibrationEnabled: 'settings_vibration_enabled',
+    // sau này cần thêm key khác thì bổ sung ở đây
 } as const;
 
-export const warehouseStorage = {
+// Helper chung để dùng trong toàn app
+export const storageUtils = {
+    // Expose ra nếu chỗ nào cần dùng trực tiếp storage (ít thôi)
+    raw: storage,
+
+    // --- Warehouse code ---
     getWarehouseCode(): string | null {
-        const value = appStorage.getString(APP_KEYS.warehouseCode);
+        const value = storage.getString(APP_KEYS.warehouseCode);
         return value ?? null;
     },
+
     setWarehouseCode(code: string) {
-        appStorage.set(APP_KEYS.warehouseCode, code);
+        if (!code) {
+            storage.remove(APP_KEYS.warehouseCode);
+            return;
+        }
+        storage.set(APP_KEYS.warehouseCode, code);
     },
+
     clearWarehouseCode() {
-        appStorage.remove(APP_KEYS.warehouseCode);
+        storage.remove(APP_KEYS.warehouseCode);
     },
-};
 
-// ---- Utils dùng chung cho logout, reset app, v.v. ----
+    // --- Vibration setting ---
+    getVibrationEnabled(): boolean {
+        const v = storage.getBoolean(APP_KEYS.vibrationEnabled);
+        // mặc định: nếu chưa lưu gì thì coi như bật
+        return v === undefined ? true : !!v;
+    },
 
-export const storageUtils = {
-    /** Xoá toàn bộ key trong tất cả các MMKV đã tạo ở đây */
+    setVibrationEnabled(enabled: boolean) {
+        storage.set(APP_KEYS.vibrationEnabled, enabled);
+    },
+
+    // --- Clear toàn bộ app storage (dùng khi logout) ---
     clearAll() {
-        appStorage.clearAll();
-        userStorage.clearAll();
-        // nếu có thêm storage khác thì clearAll ở đây luôn
+        storage.clearAll();
     },
 };
