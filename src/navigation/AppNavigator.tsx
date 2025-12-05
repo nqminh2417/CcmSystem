@@ -34,7 +34,7 @@ export default function AppNavigator() {
             >
                 <Stack.Screen name={Routes.Login} component={LoginScreen} options={{ headerShown: false, }} />
                 <Stack.Screen name={Routes.Home} component={HomeScreen} options={{ title: 'Trang chủ' }} />
-                <Stack.Screen name={Routes.Settings} component={SettingsScreen} options={{ title: 'Settings' }} />
+                <Stack.Screen name={Routes.Settings} component={SettingsScreen} options={{ title: 'Cài đặt' }} />
                 <Stack.Screen name={Routes.DevDemo} component={DevDemoScreen} options={{ title: 'Dev Demo' }} />
                 <Stack.Screen name={Routes.ReceiveGoods} component={ReceiveGoodsScreen} options={{ title: 'Nhận hàng' }} />
                 <Stack.Screen name={Routes.ScanQrReceive} component={ScanQrReceiveScreen} options={{ title: 'Scan QR Code' }} />

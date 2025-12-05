@@ -1,5 +1,7 @@
+// src/components/header/MainAppBar.tsx
+
 import { Appbar, List, Portal, Surface } from 'react-native-paper';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import React from 'react';
@@ -20,11 +22,16 @@ export function MainAppBar({
     options,
     back,
 }: NativeStackHeaderProps) {
-    const { userName, warehouseCode, plantCode, teamCode, setWarehouseCode, resetSession } = useSessionContext();
-    const theme = usePaperAppTheme();
     const {
-        showInfo,
-    } = useDialog();
+        userName,
+        warehouseCode,
+        plantCode,
+        teamCode,
+        setWarehouseCode,
+        resetSession,
+    } = useSessionContext();
+    const theme = usePaperAppTheme();
+    const { showInfo } = useDialog();
     const { openSelection } = useSelection();
     const headerColor = theme.colors.headerBg;
     const headerTextColor = theme.colors.headerText;
@@ -40,6 +47,12 @@ export function MainAppBar({
         navigation.replace(Routes.Home);
     };
 
+    const handleGoSettings = () => {
+        closeMenu();
+        if (route.name === Routes.Settings) return;
+        navigation.navigate(Routes.Settings as never);
+    };
+
     const handleSelectWarehouse = () => {
         openSelection({
             title: 'Chọn warehouse',
@@ -49,11 +62,11 @@ export function MainAppBar({
                 { id: 'R200', label: 'R200', subLabel: 'Kho R200 (fake data)' },
             ],
             mode: 'single',
-            variant: 'dialog',          // hoặc 'bottomSheet' tuỳ bạn thích
+            variant: 'dialog',
             initialSelectedIds: warehouseCode ? [warehouseCode] : [],
             confirmLabel: 'Chọn',
             cancelLabel: 'Huỷ',
-            onConfirm: (selectedIds) => {
+            onConfirm: selectedIds => {
                 const selectedId = selectedIds[0];
                 if (!selectedId) return;
 
@@ -61,7 +74,6 @@ export function MainAppBar({
 
                 closeMenu();
 
-                // show info 2s tự tắt
                 showInfo({
                     title: 'Thông báo',
                     message: `Đã chọn warehouse: ${selectedId}`,
@@ -85,6 +97,11 @@ export function MainAppBar({
     const title = options.title ?? route.name;
     const showBack = !!back && route.name !== Routes.Home;
     const isHome = route.name === Routes.Home;
+
+    const shortName =
+        userName && userName.trim().length > 0
+            ? userName.trim().split(' ').slice(-1)[0]
+            : 'Nguyễn Thị Thanh Tuyền';
 
     return (
         <SafeAreaView
@@ -123,12 +140,16 @@ export function MainAppBar({
 
                 <Appbar.Content
                     title={title}
-                    titleStyle={{ color: headerTextColor, fontWeight: '700' }}
+                    titleStyle={{
+                        color: headerTextColor,
+                        fontWeight: '700',
+                        fontSize: 17,
+                    }}
                 />
 
                 <Appbar.Action
-                    icon='account-details'
-                    size={28}
+                    icon="account-details"
+                    size={26}
                     color={headerTextColor}
                     onPress={openMenu}
                 />
@@ -136,53 +157,178 @@ export function MainAppBar({
                 {!isHome && (
                     <Appbar.Action
                         icon="home"
-                        size={28}
+                        size={24}
                         color={headerTextColor}
                         onPress={handleGoHome}
                     />
                 )}
             </Appbar.Header>
 
-
             <Portal>
                 {menuVisible && (
-                    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                        {/* bấm ra ngoài để đóng */}
-                        <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
+                    <View
+                        style={StyleSheet.absoluteFill}
+                        pointerEvents="box-none"
+                    >
+                        {/* overlay tối nhẹ + bấm ngoài để đóng */}
+                        <Pressable
+                            style={StyleSheet.absoluteFill}
+                            onPress={closeMenu}
+                        />
 
-                        <View pointerEvents="box-none" style={styles.menuWrapper}>
-                            <Surface style={styles.accountCard} elevation={4}>
-                                <Appbar.Content
-                                    title={userName}
-                                    titleStyle={{ fontWeight: '700', fontSize: 16 }}
-                                    style={{ marginBottom: 12 }}
+                        <View
+                            pointerEvents="box-none"
+                            style={styles.menuWrapper}
+                        >
+                            <Surface
+                                style={[
+                                    styles.accountCard,
+                                    { backgroundColor: theme.colors.surface },
+                                ]}
+                                elevation={4}
+                            >
+                                {/* Header user */}
+                                <View style={styles.accountHeaderRow}>
+                                    <View
+                                        style={[
+                                            styles.avatarCircle,
+                                            {
+                                                backgroundColor: theme.colors.primaryContainer,
+                                                marginLeft: 6,
+                                            },
+                                        ]}
+                                    >
+                                        <List.Icon
+                                            icon="account"
+                                            color={theme.colors.primary}
+                                        />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <List.Subheader
+                                            style={[
+                                                styles.userName,
+                                                {
+                                                    color: theme.colors.onSurface,
+                                                },
+                                            ]}
+                                        >
+                                            {shortName}
+                                        </List.Subheader>
+                                        {/* <Text
+                                            style={{
+                                                fontSize: 11,
+                                                color: theme.colors
+                                                    .onSurfaceVariant,
+                                            }}
+                                        >
+                                            {warehouseCode
+                                                ? `Warehouse: ${warehouseCode}`
+                                                : 'Chưa chọn warehouse'}
+                                        </Text> */}
+                                    </View>
+                                </View>
+
+                                <View
+                                    style={[
+                                        styles.divider,
+                                        {
+                                            backgroundColor: theme.colors.outlineVariant,
+                                        },
+                                    ]}
                                 />
 
-                                <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.12)', height: 1 }} />
-
-                                <View style={{}}>
+                                {/* Thông tin hiện tại */}
+                                <View style={styles.section}>
                                     <List.Item
-                                        title={`Warehouse: ${warehouseCode}`}
-                                        left={() => <List.Icon icon="warehouse" />}
+                                        title={
+                                            warehouseCode
+                                                ? `Warehouse: ${warehouseCode}`
+                                                : 'Chọn warehouse'
+                                        }
+                                        description="Kho làm việc"
+                                        left={props => (
+                                            <List.Icon
+                                                {...props}
+                                                icon="warehouse"
+                                            />
+                                        )}
                                         onPress={handleSelectWarehouse}
+                                        style={styles.menuItem}
+                                        titleStyle={styles.menuTitle}
+                                        descriptionStyle={
+                                            styles.menuDescription
+                                        }
                                     />
                                     <List.Item
-                                        title={`Factory: ${plantCode}`}
-                                        left={() => <List.Icon icon="factory" />}
+                                        title={
+                                            plantCode
+                                                ? `Factory: ${plantCode}`
+                                                : 'Factory: -'
+                                        }
+                                        left={props => (
+                                            <List.Icon
+                                                {...props}
+                                                icon="factory"
+                                            />
+                                        )}
+                                        style={styles.menuItem}
+                                        titleStyle={styles.menuTitle}
                                     />
                                     <List.Item
-                                        title={`Team: ${teamCode}`}
-                                        left={() => <List.Icon icon="account-group" />}
+                                        title={
+                                            teamCode
+                                                ? `Team: ${teamCode}`
+                                                : 'Team: -'
+                                        }
+                                        left={props => (
+                                            <List.Icon
+                                                {...props}
+                                                icon="account-group"
+                                            />
+                                        )}
+                                        style={styles.menuItem}
+                                        titleStyle={styles.menuTitle}
                                     />
                                 </View>
 
-                                <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.12)', height: 1 }} />
+                                <View
+                                    style={[
+                                        styles.divider,
+                                        {
+                                            backgroundColor: theme.colors.outlineVariant,
+                                        },
+                                    ]}
+                                />
 
-                                <View style={{ marginTop: 8 }}>
+                                {/* Điều hướng cài đặt / đăng xuất */}
+                                <View style={styles.section}>
+                                    <List.Item
+                                        title="Cài đặt"
+                                        left={props => (
+                                            <List.Icon
+                                                {...props}
+                                                icon="cog-outline"
+                                            />
+                                        )}
+                                        onPress={handleGoSettings}
+                                        style={styles.menuItem}
+                                        titleStyle={styles.menuTitle}
+                                    />
                                     <List.Item
                                         title="Đăng xuất"
-                                        left={() => <List.Icon icon="logout" />}
+                                        left={props => (
+                                            <List.Icon
+                                                {...props}
+                                                icon="logout"
+                                                color={theme.colors.error}
+                                            />
+                                        )}
                                         onPress={handleLogout}
+                                        style={styles.menuItem}
+                                        titleStyle={[
+                                            styles.menuTitle,
+                                            { color: theme.colors.error },
+                                        ]}
                                     />
                                 </View>
                             </Surface>
@@ -198,13 +344,54 @@ const styles = StyleSheet.create({
     menuWrapper: {
         position: 'absolute',
         top: MENU_TOP_OFFSET,
-        right: 22,
+        right: 12,
     },
     accountCard: {
-        minWidth: 220,
+        minWidth: 230,
         borderRadius: 8,
         overflow: 'hidden',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: 2,
+        paddingVertical: 8,
+    },
+    accountHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+        gap: 8,
+    },
+    avatarCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    userName: {
+        marginLeft: 0,
+        marginRight: 0,
+        marginTop: 0,
+        marginBottom: 2,
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingVertical: 0,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    divider: {
+        height: StyleSheet.hairlineWidth,
+        marginVertical: 4,
+    },
+    section: {
+        paddingVertical: 2,
+    },
+    menuItem: {
+        paddingVertical: 2,
+        minHeight: 36,
+    },
+    menuTitle: {
+        fontSize: 13,
+    },
+    menuDescription: {
+        fontSize: 11,
     },
 });

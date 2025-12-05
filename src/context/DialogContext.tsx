@@ -19,6 +19,7 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
+    Vibration,
     View,
     type GestureResponderEvent,
 } from 'react-native';
@@ -41,6 +42,7 @@ type DialogBaseOptions = {
     autoCloseMs?: number; // auto close sau X ms (optional)
     titleAlign?: 'left' | 'center';
     playSound?: boolean;
+    playVibration?: boolean;
 };
 
 type ConfirmOptions = DialogBaseOptions & {
@@ -131,9 +133,17 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const showError = (opts: DialogBaseOptions) => {
         const shouldPlay = opts.playSound ?? true;
+        const shouldVibrate = opts.playVibration ?? true; // mặc định rung
+
         if (shouldPlay) {
             soundPlayer.playError();
         }
+
+        if (shouldVibrate) {
+            // rung nhẹ 60ms
+            Vibration.vibrate(60);
+        }
+
         pushDialog({
             type: 'error',
             title: opts.title ?? 'Lỗi',
@@ -141,6 +151,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
             autoCloseMs: opts.autoCloseMs,
             titleAlign: opts.titleAlign,
             playSound: opts.playSound,
+            playVibration: opts.playVibration,
         });
     }
 

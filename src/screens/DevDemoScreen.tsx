@@ -54,12 +54,25 @@ export const DevDemoScreen: React.FC = () => {
         });
     };
 
-    const handleTestErrorNoSound = () => {
+    // Error: tắt sound nhưng vẫn rung (playVibration mặc định = true)
+    const handleTestErrorVibrationOnly = () => {
         showError({
             title: 'Lỗi',
-            message: 'Test error KHÔNG phát âm thanh.',
+            message: 'Test error: KHÔNG âm thanh, CÓ rung.',
             autoCloseMs: 1500,
             playSound: false,
+            // playVibration: true // default là true, không set cũng được
+        });
+    };
+
+    // Error: tắt cả sound lẫn rung
+    const handleTestErrorSilent = () => {
+        showError({
+            title: 'Lỗi',
+            message: 'Test error: KHÔNG âm thanh, KHÔNG rung.',
+            autoCloseMs: 1500,
+            playSound: false,
+            playVibration: false,
         });
     };
 
@@ -77,7 +90,7 @@ export const DevDemoScreen: React.FC = () => {
                 </Text>
 
                 <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
-                    Dialog + Sound
+                    Dialog + Sound + Vibration
                 </Text>
 
                 <View style={styles.buttonGroup}>
@@ -95,7 +108,7 @@ export const DevDemoScreen: React.FC = () => {
                                 { color: primaryText },
                             ]}
                         >
-                            Test Success (có âm thanh)
+                            Success (có âm thanh)
                         </Text>
                     </TouchableOpacity>
 
@@ -105,7 +118,7 @@ export const DevDemoScreen: React.FC = () => {
                             { backgroundColor: theme.colors.surfaceVariant },
                         ]}
                         activeOpacity={0.85}
-                        onPress={handleTestErrorNoSound}
+                        onPress={handleTestErrorVibrationOnly}
                     >
                         <Text
                             style={[
@@ -113,7 +126,25 @@ export const DevDemoScreen: React.FC = () => {
                                 { color: primaryText },
                             ]}
                         >
-                            Test Error (không âm thanh)
+                            Error (không âm thanh, có rung)
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.demoButton,
+                            { backgroundColor: theme.colors.surfaceVariant },
+                        ]}
+                        activeOpacity={0.85}
+                        onPress={handleTestErrorSilent}
+                    >
+                        <Text
+                            style={[
+                                styles.demoButtonText,
+                                { color: primaryText },
+                            ]}
+                        >
+                            Error (không âm thanh, không rung)
                         </Text>
                     </TouchableOpacity>
                 </View>
