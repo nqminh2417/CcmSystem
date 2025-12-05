@@ -31,6 +31,8 @@ export type SelectionConfig = {
     confirmLabel?: string;          // default: 'OK'
     cancelLabel?: string;           // default: 'Cancel'
 
+    dismissOnBackdropPress?: boolean; // default: true
+
     // Nhận kết quả đã chọn
     onConfirm?: (selectedIds: string[]) => void | Promise<void>;
     onCancel?: () => void;
@@ -44,7 +46,8 @@ type InternalState = {
     mode: SelectionMode;
     variant: SelectionVariant;
     confirmLabel: string;
-    cancelLabel: string;
+    cancelLabel?: string;
+    dismissOnBackdropPress: boolean;
     onConfirm?: (selectedIds: string[]) => void | Promise<void>;
     onCancel?: () => void;
 };
@@ -91,7 +94,8 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
             mode = 'single',
             variant = 'dialog',
             confirmLabel = 'OK',
-            cancelLabel = 'Cancel',
+            cancelLabel,
+            dismissOnBackdropPress = true,
             initialSelectedIds,
             onConfirm,
             onCancel,
@@ -102,6 +106,9 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
                 ? initialSelectedIds
                 : [];
 
+        // ✅ quyết định có Cancel hay không
+        const hasCancel = typeof onCancel === 'function' || typeof cancelLabel === 'string';
+
         setSelectedIds(initial);
         setState({
             visible: true,
@@ -111,9 +118,10 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
             mode,
             variant,
             confirmLabel,
-            cancelLabel,
+            cancelLabel: hasCancel ? (cancelLabel ?? 'Cancel') : undefined,
+            dismissOnBackdropPress,
             onConfirm,
-            onCancel,
+            onCancel: hasCancel ? onCancel : undefined,
         });
     }, []);
 
@@ -166,6 +174,7 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
                     onCancel={closeSelection}
                     confirmLabel={state.confirmLabel}
                     cancelLabel={state.cancelLabel}
+                    dismissOnBackdropPress={state.dismissOnBackdropPress}
                 />
             )}
 
@@ -183,6 +192,7 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
                     onCancel={closeSelection}
                     confirmLabel={state.confirmLabel}
                     cancelLabel={state.cancelLabel}
+                    dismissOnBackdropPress={state.dismissOnBackdropPress}
                 />
             )}
         </SelectionContext.Provider>

@@ -279,6 +279,7 @@ export const QrTemplateGrid: React.FC<Props> = ({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator
+                keyboardShouldPersistTaps="handled"
                 style={{
                     borderWidth: StyleSheet.hairlineWidth,
                     borderColor:
@@ -358,7 +359,6 @@ export const QrTemplateGrid: React.FC<Props> = ({
                         keyExtractor={item => item.id}
                         renderItem={renderRow}
                         keyboardShouldPersistTaps="handled"
-                        contentContainerStyle={{ paddingBottom: 16 }}
                     />
                 </View>
             </ScrollView>
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         paddingHorizontal: 6,
         paddingVertical: 4,
-        fontSize: 11,
+        fontSize: 12,
     },
     requiredCell: {
         alignItems: 'center',

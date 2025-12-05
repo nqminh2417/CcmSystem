@@ -20,7 +20,7 @@ export function MainAppBar({
     options,
     back,
 }: NativeStackHeaderProps) {
-    const { userName, warehouseCode, plantCode, teamCode, setWarehouseCode, } = useSessionContext();
+    const { userName, warehouseCode, plantCode, teamCode, setWarehouseCode, resetSession } = useSessionContext();
     const theme = usePaperAppTheme();
     const {
         showInfo,
@@ -57,11 +57,9 @@ export function MainAppBar({
                 const selectedId = selectedIds[0];
                 if (!selectedId) return;
 
-                // lưu tạm vào SessionContext (sau này thay bằng API + MMKV)
                 setWarehouseCode(selectedId);
 
-                // đóng cái account-card nếu bạn muốn
-                closeMenu?.();
+                closeMenu();
 
                 // show info 2s tự tắt
                 showInfo({
@@ -75,6 +73,9 @@ export function MainAppBar({
 
     const handleLogout = () => {
         closeMenu();
+
+        resetSession();
+
         navigation.reset({
             index: 0,
             routes: [{ name: Routes.Login as never }],
