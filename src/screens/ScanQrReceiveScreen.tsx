@@ -28,9 +28,9 @@ type ScanRow = {
 };
 
 const COL_WIDTH = {
-    qrRaw: 200,
-    parsedValue: 220,
-    status: 120,
+    qrRaw: 100,
+    parsedValue: 180,
+    status: 100,
 };
 
 const TABLE_WIDTH = COL_WIDTH.qrRaw + COL_WIDTH.parsedValue + COL_WIDTH.status;
@@ -127,17 +127,18 @@ export function ScanQrReceiveScreen() {
             edges={['right', 'left', 'bottom']}
         >
             <View style={styles.container}>
-                <View style={styles.poRow}>
-                    <Text style={[styles.label, { color: primaryText, marginBottom: 0 }]}>
+                <View style={[styles.poRow]}>
+                    <Text style={[styles.label, { color: primaryText }]}>
                         PO No.
                     </Text>
                     <TextInput
-                        mode="outlined"
+                        dense
                         value={poNo}
                         editable={false}
                         selectTextOnFocus={false}
                         style={styles.poInput}
                     />
+
                 </View>
 
                 {/* Grid scan QR (3 cột) */}
@@ -262,7 +263,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
-        paddingVertical: 8,
         fontSize: 14,
     },
     gridWrapper: {
