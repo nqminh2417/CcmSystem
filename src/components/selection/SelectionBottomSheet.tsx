@@ -34,7 +34,8 @@ type Props = {
     onConfirm: () => void;
     onCancel: () => void;
     confirmLabel: string;
-    cancelLabel: string;
+    cancelLabel?: string;
+    dismissOnBackdropPress?: boolean;
 };
 
 export const SelectionBottomSheet: React.FC<Props> = ({
@@ -49,6 +50,7 @@ export const SelectionBottomSheet: React.FC<Props> = ({
     onCancel,
     confirmLabel,
     cancelLabel,
+    dismissOnBackdropPress = true,
 }) => {
     const theme = useTheme();
 
@@ -57,8 +59,17 @@ export const SelectionBottomSheet: React.FC<Props> = ({
     return (
         <Portal>
             <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                {/* overlay bấm để đóng */}
-                <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
+                {/* overlay bấm để đóng (nếu được phép) */}
+                {dismissOnBackdropPress ? (
+                    <Pressable
+                        style={StyleSheet.absoluteFill}
+                        onPress={onCancel}
+                    />
+                ) : (
+                    // vẫn cần một View để giữ dark overlay nếu bạn dùng,
+                    // nhưng pointerEvents="none" để không nhận touch
+                    <View style={StyleSheet.absoluteFill} pointerEvents="none" />
+                )}
 
                 <View pointerEvents="box-none" style={styles.sheetWrapper}>
                     <Surface
@@ -119,7 +130,9 @@ export const SelectionBottomSheet: React.FC<Props> = ({
                         </View>
 
                         <View style={styles.actionsRow}>
-                            <Button onPress={onCancel}>{cancelLabel}</Button>
+                            {cancelLabel && (
+                                <Button onPress={onCancel}>{cancelLabel}</Button>
+                            )}
                             <Button onPress={onConfirm}>{confirmLabel}</Button>
                         </View>
                     </Surface>

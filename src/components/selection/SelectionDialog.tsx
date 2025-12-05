@@ -33,7 +33,8 @@ type Props = {
     onConfirm: () => void;
     onCancel: () => void;
     confirmLabel: string;
-    cancelLabel: string;
+    cancelLabel?: string;
+    dismissOnBackdropPress?: boolean;
 };
 
 export const SelectionDialog: React.FC<Props> = ({
@@ -48,6 +49,7 @@ export const SelectionDialog: React.FC<Props> = ({
     onCancel,
     confirmLabel,
     cancelLabel,
+    dismissOnBackdropPress = true,
 }) => {
     const theme = useTheme();
 
@@ -55,7 +57,7 @@ export const SelectionDialog: React.FC<Props> = ({
         <Portal>
             <Dialog
                 visible={visible}
-                onDismiss={onCancel}
+                onDismiss={dismissOnBackdropPress ? onCancel : undefined}
                 style={{
                     width: DIALOG_WIDTH,
                     alignSelf: 'center',
@@ -123,7 +125,9 @@ export const SelectionDialog: React.FC<Props> = ({
                         paddingBottom: 8,
                     }}
                 >
-                    <Button onPress={onCancel}>{cancelLabel}</Button>
+                    {cancelLabel && (
+                        <Button onPress={onCancel}>{cancelLabel}</Button>
+                    )}
                     <Button onPress={onConfirm}>{confirmLabel}</Button>
                 </Dialog.Actions>
             </Dialog>

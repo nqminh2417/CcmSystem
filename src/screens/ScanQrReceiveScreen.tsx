@@ -1,9 +1,9 @@
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import {
     FlatList,
-    Pressable,
     ScrollView,
     StyleSheet,
+    TextInput,
     View,
 } from 'react-native';
 import React, { useState } from 'react';
@@ -132,7 +132,6 @@ export function ScanQrReceiveScreen() {
                         PO No.
                     </Text>
                     <TextInput
-                        dense
                         value={poNo}
                         editable={false}
                         selectTextOnFocus={false}
@@ -263,6 +262,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
+        paddingVertical: 8,
         fontSize: 14,
     },
     gridWrapper: {

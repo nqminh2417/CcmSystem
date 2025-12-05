@@ -1,7 +1,7 @@
 // src/screens/AddQrTemplateScreen.tsx
 
-import { Button, Text, TextInput } from 'react-native-paper';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 
 import { QrTemplateGrid } from '../components/QrTemplateGrid';
 import React from 'react';
@@ -25,6 +25,8 @@ export function AddQrTemplateScreen() {
         // Tạm thời log hoặc show dialog
         console.log('Saving QR template for PO: ', poNo);
     };
+    ////
+    const isIOS = Platform.OS === 'ios';
 
     return (
         <SafeAreaView
@@ -33,25 +35,26 @@ export function AddQrTemplateScreen() {
         >
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+                behavior={isIOS ? 'padding' : undefined}
+                keyboardVerticalOffset={isIOS ? 80 : 40}
             >
                 <View style={styles.container}>
-                    {/* PO No. */}
-                    <View style={styles.poRow}>
-                        <Text style={styles.label}>PO No.</Text>
-                        <TextInput
-                            dense
-                            value={poNo}
-                            editable={false}
-                            selectTextOnFocus={false}
-                            style={styles.poInput}
-                        />
-                    </View>
+                    <View style={styles.content}>
+                        {/* PO No. */}
+                        <View style={styles.poRow}>
+                            <Text style={styles.label}>PO No.</Text>
+                            <TextInput
+                                value={poNo}
+                                editable={false}
+                                selectTextOnFocus={false}
+                                style={styles.poInput}
+                            />
+                        </View>
 
-                    {/* Grid template */}
-                    <View style={styles.gridWrapper}>
-                        <QrTemplateGrid />
+                        {/* Grid template */}
+                        <View style={styles.gridWrapper}>
+                            <QrTemplateGrid />
+                        </View>
                     </View>
 
                     {/* Nút lưu */}
@@ -73,6 +76,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
+    content: {
+        flex: 1,
+    },
     poRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -88,13 +94,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
+        paddingVertical: 8,
         fontSize: 14,
     },
     gridWrapper: {
         flex: 1,
-        marginBottom: 16,
+        // marginBottom: 16,
     },
     saveButton: {
         alignSelf: 'flex-end', // hoặc 'stretch' nếu muốn full width
+        marginTop: 8,
     },
 });

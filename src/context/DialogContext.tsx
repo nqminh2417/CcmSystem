@@ -22,6 +22,7 @@ import {
     View,
     type GestureResponderEvent,
 } from 'react-native';
+import { soundPlayer } from '../utils/soundPlayer';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DIALOG_WIDTH = Math.min(SCREEN_WIDTH * 0.86, 360);
@@ -39,6 +40,7 @@ type DialogBaseOptions = {
     message?: string;
     autoCloseMs?: number; // auto close sau X ms (optional)
     titleAlign?: 'left' | 'center';
+    playSound?: boolean;
 };
 
 type ConfirmOptions = DialogBaseOptions & {
@@ -124,18 +126,29 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
             message: opts.message,
             autoCloseMs: opts.autoCloseMs,
             titleAlign: opts.titleAlign,
+            playSound: opts.playSound,
         });
 
-    const showError = (opts: DialogBaseOptions) =>
+    const showError = (opts: DialogBaseOptions) => {
+        const shouldPlay = opts.playSound ?? true;
+        if (shouldPlay) {
+            soundPlayer.playError();
+        }
         pushDialog({
             type: 'error',
             title: opts.title ?? 'Lỗi',
             message: opts.message,
             autoCloseMs: opts.autoCloseMs,
             titleAlign: opts.titleAlign,
+            playSound: opts.playSound,
         });
+    }
 
-    const showSuccess = (opts: DialogBaseOptions) =>
+    const showSuccess = (opts: DialogBaseOptions) => {
+        const shouldPlay = opts.playSound ?? true;
+        if (shouldPlay) {
+            soundPlayer.playSuccess();
+        }
         pushDialog({
             type: 'success',
             title: opts.title ?? 'Thành công',
@@ -143,6 +156,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
             autoCloseMs: opts.autoCloseMs,
             titleAlign: opts.titleAlign,
         });
+    }
 
     const showConfirm = (opts: ConfirmOptions) =>
         pushDialog({

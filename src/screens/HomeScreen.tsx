@@ -1,21 +1,52 @@
 // src/screens/HomeScreen.tsx
 
+import React, { useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
 import { Routes } from '../navigation/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDialog } from '../context/DialogContext';
 import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
 import { useNavigation } from '@react-navigation/native';
 import { usePaperAppTheme } from '../context/ThemeContext';
+import { useSelection } from '../context/SelectionContext';
+import { useSessionContext } from '../context/SessionContext';
 
 type Nav = NativeStackNavigationProp<any>;
 
 export function HomeScreen() {
+    const navigation = useNavigation<Nav>();
     const theme = usePaperAppTheme();
     const { primaryText, secondaryText } = useHighContrastTextColors();
-    const navigation = useNavigation<Nav>();
+    const { openSelection } = useSelection();
+    const { warehouseCode, setWarehouseCode } = useSessionContext();
+    const { showSuccess, showError } = useDialog();
+
+    useEffect(() => {
+        // Đã có warehouse trong session (đã load từ MMKV ở SessionProvider) → khỏi hỏi
+        if (warehouseCode) return;
+
+        openSelection({
+            title: 'Chọn Warehouse',
+            subtitle: 'Vui lòng chọn kho làm việc.',
+            variant: 'dialog',
+            mode: 'single',
+            items: [
+                { id: 'H100', label: 'H100' },
+                { id: 'R200', label: 'R200' },
+            ],
+            dismissOnBackdropPress: false,
+            confirmLabel: 'Chọn',
+            onConfirm: selectedIds => {
+                const selectedId = selectedIds[0];
+                if (!selectedId) return;
+
+                // ✅ Cập nhật SessionContext - đồng thời đã lưu luôn vào MMKV
+                setWarehouseCode(selectedId);
+            },
+        });
+    }, [openSelection, warehouseCode, setWarehouseCode]);
 
     // Demo dữ liệu kho
     const warehouseItems = React.useMemo(
@@ -57,6 +88,26 @@ export function HomeScreen() {
     const handleGoSecond = () => {
         // TODO: đổi Routes.SecondFeature (hoặc gì đó) cho đúng route thật
         navigation.navigate(Routes.AddQrTemplate as never);
+    };
+
+    // ✅ Ví dụ dùng showSuccess + sound
+    const handleTestSuccess = () => {
+        showSuccess({
+            title: 'Thành công',
+            message: 'Test success có bật âm thanh.',
+            autoCloseMs: 1500,
+            playSound: true, // mặc định cũng true, ghi cho rõ
+        });
+    };
+
+    // ✅ Ví dụ dùng showError nhưng tắt sound
+    const handleTestErrorNoSound = () => {
+        showError({
+            title: 'Lỗi',
+            message: 'Test error nhưng KHÔNG phát âm thanh.',
+            autoCloseMs: 1500,
+            playSound: false,
+        });
     };
 
     return (
@@ -126,6 +177,49 @@ export function HomeScreen() {
                             Sẽ triển khai sau
                         </Text>
                     </TouchableOpacity>
+
+                    {/* ✅ Nhóm test sound dialog (ví dụ cách dùng) */}
+                    <View className="mt-6 space-y-2">
+                        <TouchableOpacity
+                            className="rounded-xl py-3 px-4"
+                            style={{
+                                backgroundColor: theme.colors.surfaceVariant,
+                            }}
+                            activeOpacity={0.85}
+                            onPress={handleTestSuccess}
+                        >
+                            <Text
+                                style={{
+                                    color: primaryText,
+                                    fontSize: 13,
+                                    fontWeight: '600',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                Test Success (có âm thanh)
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            className="rounded-xl py-3 px-4"
+                            style={{
+                                backgroundColor: theme.colors.surfaceVariant,
+                            }}
+                            activeOpacity={0.85}
+                            onPress={handleTestErrorNoSound}
+                        >
+                            <Text
+                                style={{
+                                    color: primaryText,
+                                    fontSize: 13,
+                                    fontWeight: '600',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                Test Error (không âm thanh)
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
