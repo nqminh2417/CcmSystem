@@ -6,6 +6,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Routes } from '../navigation/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getAppVersionInfo } from '../utils/appInfo';
 import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
 import { useNavigation } from '@react-navigation/native';
 import { usePaperAppTheme } from '../context/ThemeContext';
@@ -14,12 +15,10 @@ import { useSessionContext } from '../context/SessionContext';
 
 type Nav = NativeStackNavigationProp<any>;
 
-// Tạm thời set cứng, sau này muốn lấy từ app.json / native thì đổi ở đây
-const APP_VERSION = '1.0.0';
-
 export function HomeScreen() {
     const navigation = useNavigation<Nav>();
     const theme = usePaperAppTheme();
+    const { displayShort } = getAppVersionInfo();
     const { primaryText, secondaryText } = useHighContrastTextColors();
     const { openSelection } = useSelection();
     const { warehouseCode, setWarehouseCode } = useSessionContext();
@@ -181,7 +180,7 @@ export function HomeScreen() {
                             color: theme.colors.onSurfaceVariant,
                         }}
                     >
-                        Version {APP_VERSION}
+                        {displayShort}
                     </Text>
                 </TouchableOpacity>
             </View>

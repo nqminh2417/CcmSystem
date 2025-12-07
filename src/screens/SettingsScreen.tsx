@@ -11,14 +11,19 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Vibration, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { checkForAppUpdate } from '../utils/appUpdate';
+import { getAppVersionInfo } from '../utils/appInfo';
 import { storageUtils } from '../utils/mmkv';
 import { useAppTheme } from '../context/ThemeContext';
+import { useDialog } from '../context/DialogContext';
 import { useHighContrastTextColors } from '../hooks/useHighContrastTextColors';
 
 export function SettingsScreen() {
+    const { displayFull } = getAppVersionInfo();
     const { primaryText, secondaryText } = useHighContrastTextColors();
     const { isDark, toggleTheme } = useAppTheme();
     const theme = useTheme();
+    const { showInfo, showError } = useDialog();
 
     const [vibrationEnabled, setVibrationEnabledState] = useState(true);
 
@@ -46,6 +51,33 @@ export function SettingsScreen() {
 
             return next;
         });
+    };
+
+    const handleCheckUpdate = async () => {
+        try {
+            const result = await checkForAppUpdate();
+            if (!result.hasUpdate) {
+                showInfo({
+                    title: 'Cập nhật',
+                    message: 'Bạn đang dùng phiên bản mới nhất.',
+                });
+                return;
+            }
+
+            showInfo({
+                title: 'Có bản cập nhật mới',
+                message:
+                    `Hiện tại: ${result.currentVersionName} (Build ${result.currentBuildNumber})\n` +
+                    `Bản mới: ${result.latestVersionName} (Build ${result.latestVersionCode})`,
+                // sau này ở đây bạn có thể hiển thị popup confirm "Cập nhật" -> bắt đầu download APK
+            });
+        } catch (e) {
+            console.log('[checkUpdate] error', e);
+            showError({
+                title: 'Lỗi',
+                message: 'Không kiểm tra được phiên bản. Vui lòng thử lại.',
+            });
+        }
     };
 
     return (
@@ -127,6 +159,59 @@ export function SettingsScreen() {
                                     value={vibrationEnabled}
                                     onValueChange={handleToggleVibration}
                                 />
+                            </View>
+                        </View>
+                    </TouchableRipple>
+                </List.Section>
+
+                {/* Section thông tin ứng dụng */}
+                <List.Section>
+                    <List.Subheader style={styles.subheader}>
+                        Thông tin ứng dụng
+                    </List.Subheader>
+
+                    {/* Hàng hiển thị phiên bản hiện tại */}
+                    <View style={styles.row}>
+                        <View style={styles.textBlock}>
+                            <Text
+                                style={[
+                                    styles.title,
+                                    { color: primaryText },
+                                ]}
+                            >
+                                Phiên bản
+                            </Text>
+                            <Text
+                                style={[
+                                    styles.description,
+                                    { color: secondaryText },
+                                ]}
+                            >
+                                {displayFull}
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Hàng kiểm tra cập nhật */}
+                    <TouchableRipple onPress={handleCheckUpdate}>
+                        <View style={styles.row}>
+                            <View style={styles.textBlock}>
+                                <Text
+                                    style={[
+                                        styles.title,
+                                        { color: primaryText },
+                                    ]}
+                                >
+                                    Kiểm tra cập nhật
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.description,
+                                        { color: secondaryText },
+                                    ]}
+                                >
+                                    Kiểm tra xem có phiên bản mới hơn hay không
+                                </Text>
                             </View>
                         </View>
                     </TouchableRipple>
