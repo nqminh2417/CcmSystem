@@ -1,6 +1,7 @@
 // src/screens/SettingsScreen.tsx
 
 import {
+    ActivityIndicator,
     List,
     Switch,
     Text,
@@ -9,9 +10,9 @@ import {
 } from 'react-native-paper';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Vibration, View } from 'react-native';
+import { checkForAppUpdate, downloadApkToAppDir, installApk } from '../utils/appUpdate';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { checkForAppUpdate } from '../utils/appUpdate';
 import { getAppVersionInfo } from '../utils/appInfo';
 import { storageUtils } from '../utils/mmkv';
 import { useAppTheme } from '../context/ThemeContext';
@@ -23,9 +24,13 @@ export function SettingsScreen() {
     const { primaryText, secondaryText } = useHighContrastTextColors();
     const { isDark, toggleTheme } = useAppTheme();
     const theme = useTheme();
-    const { showInfo, showError } = useDialog();
+    const { showInfo, showError, showConfirm } = useDialog();
 
     const [vibrationEnabled, setVibrationEnabledState] = useState(true);
+
+    const [checkingUpdate, setCheckingUpdate] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState<number>(0);
 
     // Load setting rung lần đầu vào màn hình
     useEffect(() => {
@@ -54,8 +59,15 @@ export function SettingsScreen() {
     };
 
     const handleCheckUpdate = async () => {
+        if (checkingUpdate || isUpdating) {
+            // đang bận, tránh bấm spam
+            return;
+        }
+
         try {
+            setCheckingUpdate(true);
             const result = await checkForAppUpdate();
+
             if (!result.hasUpdate) {
                 showInfo({
                     title: 'Cập nhật',
@@ -64,12 +76,47 @@ export function SettingsScreen() {
                 return;
             }
 
-            showInfo({
+            // Có bản mới -> hỏi confirm
+            showConfirm({
                 title: 'Có bản cập nhật mới',
                 message:
                     `Hiện tại: ${result.currentVersionName} (Build ${result.currentBuildNumber})\n` +
-                    `Bản mới: ${result.latestVersionName} (Build ${result.latestVersionCode})`,
-                // sau này ở đây bạn có thể hiển thị popup confirm "Cập nhật" -> bắt đầu download APK
+                    `Bản mới: ${result.latestVersionName} (Build ${result.latestVersionCode})\n\n` +
+                    'Bạn có muốn tải về và cài đặt ngay bây giờ không?',
+                onConfirm: async () => {
+                    // ⚠️ Tạm thời fake URL, sau bạn thay bằng URL nội bộ thật
+                    const fakeApkUrl = 'https://example.com/ccms-latest.apk';
+
+                    try {
+                        setIsUpdating(true);
+                        setDownloadProgress(0);
+
+                        const localPath = await downloadApkToAppDir(
+                            fakeApkUrl,
+                            progress => {
+                                // progress: 0–100
+                                setDownloadProgress(progress);
+                            },
+                        );
+
+                        // Nếu downloadApkToAppDir hiện đang fake error,
+                        // đoạn dưới sẽ vào catch. Khi bạn có URL thật sẽ chạy bình thường.
+                        await installApk(localPath);
+                    } catch (e) {
+                        console.log('[update] download/install error', e);
+                        showError({
+                            title: 'Lỗi cập nhật',
+                            message:
+                                'Không tải hoặc cài đặt được bản cập nhật. Vui lòng thử lại sau.',
+                        });
+                    } finally {
+                        setIsUpdating(false);
+                        setDownloadProgress(0);
+                    }
+                },
+                onCancel: () => {
+                    // user bấm Huỷ -> không làm gì thêm
+                },
             });
         } catch (e) {
             console.log('[checkUpdate] error', e);
@@ -77,6 +124,8 @@ export function SettingsScreen() {
                 title: 'Lỗi',
                 message: 'Không kiểm tra được phiên bản. Vui lòng thử lại.',
             });
+        } finally {
+            setCheckingUpdate(false);
         }
     };
 
@@ -193,7 +242,10 @@ export function SettingsScreen() {
                     </View>
 
                     {/* Hàng kiểm tra cập nhật */}
-                    <TouchableRipple onPress={handleCheckUpdate}>
+                    <TouchableRipple
+                        onPress={handleCheckUpdate}
+                        disabled={checkingUpdate || isUpdating}
+                    >
                         <View style={styles.row}>
                             <View style={styles.textBlock}>
                                 <Text
@@ -210,8 +262,40 @@ export function SettingsScreen() {
                                         { color: secondaryText },
                                     ]}
                                 >
-                                    Kiểm tra xem có phiên bản mới hơn hay không
+                                    Kiểm tra và cài đặt bản cập nhật mới
                                 </Text>
+                            </View>
+
+                            <View style={styles.updateRight}>
+                                {checkingUpdate && !isUpdating && (
+                                    <View style={styles.inlineStatus}>
+                                        <ActivityIndicator size="small" />
+                                        <Text
+                                            style={[
+                                                styles.description,
+                                                { color: secondaryText },
+                                            ]}
+                                        >
+                                            {'  Đang kiểm tra...'}
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {isUpdating && (
+                                    <View style={styles.inlineStatus}>
+                                        <ActivityIndicator size="small" />
+                                        <Text
+                                            style={[
+                                                styles.description,
+                                                { color: secondaryText },
+                                            ]}
+                                        >
+                                            {`  Đang tải... ${Math.round(
+                                                downloadProgress || 0,
+                                            )}%`}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
                         </View>
                     </TouchableRipple>
@@ -252,5 +336,15 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
         opacity: 0.8,
+    },
+    updateRight: {
+        marginLeft: 8,
+        minWidth: 120,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    inlineStatus: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
