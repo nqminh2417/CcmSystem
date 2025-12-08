@@ -19,10 +19,12 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
+    Vibration,
     View,
     type GestureResponderEvent,
 } from 'react-native';
 import { soundPlayer } from '../utils/soundPlayer';
+import { storageUtils } from '../utils/mmkv';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DIALOG_WIDTH = Math.min(SCREEN_WIDTH * 0.86, 360);
@@ -41,6 +43,7 @@ type DialogBaseOptions = {
     autoCloseMs?: number; // auto close sau X ms (optional)
     titleAlign?: 'left' | 'center';
     playSound?: boolean;
+    playVibration?: boolean;
 };
 
 type ConfirmOptions = DialogBaseOptions & {
@@ -130,10 +133,20 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
     const showError = (opts: DialogBaseOptions) => {
-        const shouldPlay = opts.playSound ?? true;
-        if (shouldPlay) {
+        const shouldPlaySound = opts.playSound ?? true;
+
+        const globalVibrationEnabled = storageUtils.getVibrationEnabled();
+        const shouldVibrate = globalVibrationEnabled && (opts.playVibration ?? true); // mặc định rung
+
+        if (shouldPlaySound) {
             soundPlayer.playError();
         }
+
+        if (shouldVibrate) {
+            // rung nhẹ 60ms
+            Vibration.vibrate(60);
+        }
+
         pushDialog({
             type: 'error',
             title: opts.title ?? 'Lỗi',
@@ -141,6 +154,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
             autoCloseMs: opts.autoCloseMs,
             titleAlign: opts.titleAlign,
             playSound: opts.playSound,
+            playVibration: opts.playVibration,
         });
     }
 

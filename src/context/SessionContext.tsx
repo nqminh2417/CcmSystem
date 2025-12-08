@@ -1,5 +1,6 @@
 import React, { ReactNode, createContext, useContext, useState } from 'react';
-import { storageUtils, warehouseStorage } from '../utils/mmkv';
+
+import { storageUtils } from '../utils/mmkv';
 
 type SessionContextValue = {
     userName: string;
@@ -20,7 +21,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     // tạm hard-code; sau này bạn set từ màn Login / API / mmkv
     const [userName, setUserName] = useState('Nguyễn Thị Thanh Tuyền');
     const [warehouseCode, _setWarehouseCode] = useState(
-        () => warehouseStorage.getWarehouseCode() ?? ''
+        () => storageUtils.getWarehouseCode() ?? ''
     );
     const [plantCode, setPlantCode] = useState('RACH GIA A');
     const [teamCode, setTeamCode] = useState('CCM');
@@ -28,9 +29,9 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const setWarehouseCode = (code: string) => {
         _setWarehouseCode(code);
         if (code) {
-            warehouseStorage.setWarehouseCode(code);
+            storageUtils.setWarehouseCode(code);
         } else {
-            warehouseStorage.clearWarehouseCode();
+            storageUtils.clearWarehouseCode();
         }
     };
 

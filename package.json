@@ -25,6 +25,7 @@
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-config": "^1.6.0",
+    "react-native-device-info": "^15.0.1",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-mmkv": "^4.0.1",
     "react-native-nitro-modules": "^0.31.7",

@@ -1,77 +1,90 @@
 // src/api/client.ts
 
-import Config from 'react-native-config';
-import { mmkv } from '../utils/mmkv';
+import { APP_KEYS, storageUtils } from '../utils/mmkv';
 
-const API_BASE_URL = Config.API_BASE_URL ?? '';
+import Config from 'react-native-config';
+
+const FALLBACK_BASE_URL = Config.API_BASE_URL ?? '';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-export interface FetchErr extends Error {
+export interface FetchError extends Error {
     status?: number;
     data?: unknown;
 }
 
-export async function fetchWrapper<
-    TRes = unknown,
-    TBody extends Record<string, any> = Record<string, any>,
->(
+/**
+ * Hàm lõi gọi API.
+ * - Base URL ưu tiên lấy từ MMKV (serverBaseUrl), nếu không có thì dùng API_BASE_URL trong .env
+ * - Với method có body (POST/PUT/PATCH/DELETE) sẽ tự gắn USRID, FAC_CD, VERSION vào body
+ */
+async function request<TRes = unknown>(
     path: string,
     method: HttpMethod,
-    body?: TBody,
+    body?: Record<string, any>,
     headers?: Record<string, string>,
 ): Promise<TRes> {
-    // Ưu tiên ipserver trong mmkv, không có thì dùng env
-    const baseUrl = mmkv.appStorage.getString('ipserver') || API_BASE_URL;
+    // Lấy baseUrl từ MMKV trước
+    const storedBaseUrl = storageUtils.getServerBaseUrl() ?? '';
+    const baseUrl = storedBaseUrl.length > 0 ? storedBaseUrl : FALLBACK_BASE_URL;
 
-    // Body gốc (không mutate tham số)
-    const baseBody: Record<string, any> = body ?? {};
+    if (!baseUrl) {
+        console.warn(
+            '[fetchWrapper] No base URL configured. Set serverBaseUrl in MMKV or API_BASE_URL in .env.',
+        );
+    }
 
-    // Thêm các field chung vào body theo "sách vở"
-    const finalBody = {
-        ...baseBody,
-        USRID: mmkv.appStorage.getString('user_id') ?? '',
-        FAC_CD: mmkv.appStorage.getString('fac_cd') ?? '',
-        VERSION: mmkv.appStorage.getString('currentVersion') ?? '',
-    };
+    const isBodyMethod = method !== 'GET' && method !== 'DELETE';
+
+    const finalBody = isBodyMethod
+        ? {
+            ...(body ?? {}),
+            USRID: storageUtils.raw.getString(APP_KEYS.userId) ?? '',
+            FAC_CD: storageUtils.raw.getString(APP_KEYS.facCd) ?? '',
+            VERSION: storageUtils.raw.getString(APP_KEYS.currentVersion) ?? '',
+        }
+        : undefined;
 
     const defaultHeaders: Record<string, string> = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        Accept: 'application/json',
     };
 
-    const finalHeaders = {
+    if (finalBody !== undefined) {
+        defaultHeaders['Content-Type'] = 'application/json';
+    }
+
+    const finalHeaders: Record<string, string> = {
         ...defaultHeaders,
         ...(headers ?? {}),
     };
 
-    const res = await fetch(baseUrl + path, {
+    const response = await fetch(baseUrl + path, {
         method,
         headers: finalHeaders,
-        body: JSON.stringify(finalBody),
+        body: finalBody !== undefined ? JSON.stringify(finalBody) : undefined,
     });
 
-    const text = await res.text();
-    let json: any = null;
+    const text = await response.text();
+    let data: any = null;
 
     if (text) {
         try {
-            json = JSON.parse(text);
+            data = JSON.parse(text);
         } catch {
-            // Response không phải JSON thì thôi
+            // Response không phải JSON, giữ nguyên text
+            data = text;
         }
     }
 
-    if (!res.ok) {
+    if (!response.ok) {
         const message =
-            json?.message ||
-            json?.error ||
-            `Request failed with status ${res.status}`;
+            (data && (data.message || data.error)) ||
+            `Request failed with status ${response.status}`;
 
-        const err: FetchErr = new Error(message);
-        err.status = res.status;
-        err.data = json;
-        throw err;
+        const error: FetchError = new Error(message);
+        error.status = response.status;
+        error.data = data;
+        throw error;
     }
 
     if (!text) {
@@ -79,7 +92,50 @@ export async function fetchWrapper<
         return undefined as TRes;
     }
 
-    return json as TRes;
+    return data as TRes;
 }
+
+/**
+ * fetchWrapper: dùng trong app
+ * - fetchWrapper.get('/path')
+ * - fetchWrapper.post('/path', body)
+ */
+export const fetchWrapper = {
+    get<TRes = unknown>(path: string, headers?: Record<string, string>) {
+        return request<TRes>(path, 'GET', undefined, headers);
+    },
+
+    post<TRes = unknown>(
+        path: string,
+        body?: Record<string, any>,
+        headers?: Record<string, string>,
+    ) {
+        return request<TRes>(path, 'POST', body, headers);
+    },
+
+    put<TRes = unknown>(
+        path: string,
+        body?: Record<string, any>,
+        headers?: Record<string, string>,
+    ) {
+        return request<TRes>(path, 'PUT', body, headers);
+    },
+
+    patch<TRes = unknown>(
+        path: string,
+        body?: Record<string, any>,
+        headers?: Record<string, string>,
+    ) {
+        return request<TRes>(path, 'PATCH', body, headers);
+    },
+
+    delete<TRes = unknown>(
+        path: string,
+        body?: Record<string, any>,
+        headers?: Record<string, string>,
+    ) {
+        return request<TRes>(path, 'DELETE', body, headers);
+    },
+};
 
 export default fetchWrapper;

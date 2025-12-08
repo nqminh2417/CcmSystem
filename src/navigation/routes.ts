@@ -5,6 +5,7 @@ export const Routes = {
     Login: 'Login',
     Home: 'Home',
     Settings: 'Settings',
+    DevDemo: 'DevDemo',
     ReceiveGoods: 'ReceiveGoods',
     ScanQrReceive: 'ScanQrReceive',
     AddQrTemplate: 'AddQrTemplate',
@@ -16,6 +17,7 @@ export type RootStackParamList = {
     [Routes.Login]: undefined;
     [Routes.Home]: undefined;
     [Routes.Settings]: undefined;
+    [Routes.DevDemo]: undefined;
     [Routes.ReceiveGoods]: undefined;
     [Routes.ScanQrReceive]: { poNo: string };
     [Routes.AddQrTemplate]: { poNo: string };

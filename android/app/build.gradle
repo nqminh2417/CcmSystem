@@ -83,7 +83,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
     signingConfigs {
         debug {
@@ -103,6 +103,18 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all { output ->
+                def appName = "ccm"        // tên app bạn muốn
+                def versionName = variant.versionName
+                def versionCode = variant.versionCode
+
+                // Ví dụ: ccm-1.apk
+                outputFileName = "${appName}-${versionCode}.apk"
+            }
         }
     }
 }

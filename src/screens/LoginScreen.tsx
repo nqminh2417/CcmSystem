@@ -12,11 +12,14 @@ import { RootStackParamList, Routes } from '../navigation/routes';
 
 import Icon from '@react-native-vector-icons/fontawesome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { getAppVersionInfo } from '../utils/appInfo';
 import logo from '../assets/images/logo-ism.png';
 
 type Props = NativeStackScreenProps<RootStackParamList, typeof Routes.Login>;
 
 export function LoginScreen({ navigation }: Props) {
+    const { displayShort } = getAppVersionInfo();
+
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = () => {
@@ -83,7 +86,7 @@ export function LoginScreen({ navigation }: Props) {
 
                 {/* Version */}
                 <View className="items-center mt-4">
-                    <Text className="text-xs text-slate-400">Version v1.0.0</Text>
+                    <Text className="text-xs text-slate-400">{displayShort}</Text>
                 </View>
             </View>
         </KeyboardAvoidingView>
