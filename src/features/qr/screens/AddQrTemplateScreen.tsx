@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     },
     gridWrapper: {
         flex: 1,
-        // marginBottom: 16,
     },
     saveButton: {
         alignSelf: 'flex-end', // hoặc 'stretch' nếu muốn full width

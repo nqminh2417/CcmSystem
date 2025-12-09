@@ -10,9 +10,11 @@
     "start:reset": "react-native start --reset-cache",
     "test": "jest",
     "android:clean": "cd android && gradlew.bat clean",
-    "android:clean-debug": "cd android && gradlew.bat clean && cd .. && react-native run-android",
+    "android:clean-debug": "yarn android:clean && yarn start:reset",
     "android:clean-aab": "cd android && gradlew.bat clean bundleRelease",
-    "android:clean-apk": "cd android && gradlew.bat clean assembleRelease"
+    "android:clean-apk": "cd android && gradlew.bat clean assembleRelease",
+    "android:clean-dirs": "IF EXIST android\\build (rmdir /s /q android\\build) && IF EXIST android\\app\\build (rmdir /s /q android\\app\\build) && IF EXIST android\\app\\.cxx (rmdir /s /q android\\app\\.cxx)",
+    "clean:deep": "IF EXIST node_modules (rmdir /s /q node_modules) && yarn cache clean && yarn android:clean-dirs"
   },
   "dependencies": {
     "@react-native-masked-view/masked-view": "^0.3.2",
