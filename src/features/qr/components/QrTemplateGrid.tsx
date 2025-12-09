@@ -15,13 +15,15 @@ import { useHighContrastTextColors } from '../../../hooks/useHighContrastTextCol
 import { usePaperAppTheme } from '../../../context/ThemeContext';
 import { useSelection } from '../../../context/SelectionContext';
 
+type QrTemplateKeyType = 'item' | 'mfgdt' | 'expdt';
+
 export type QrTemplateRow = {
     id: string;
     readKey: string;
     value: string;
     format: string;
     required: boolean;
-    keyType: string;
+    keyType: QrTemplateKeyType;
 };
 
 type Props = {
@@ -29,6 +31,18 @@ type Props = {
     onChangeRows?: (rows: QrTemplateRow[]) => void;
 };
 
+// options cho Key Type
+const KEY_TYPE_OPTIONS: { id: QrTemplateKeyType; label: string }[] = [
+    { id: 'item', label: 'Item' },
+    { id: 'mfgdt', label: 'Mfg.dt' },
+    { id: 'expdt', label: 'Exp.dt' },
+];
+
+const getKeyTypeLabel = (id: QrTemplateKeyType): string => {
+    return KEY_TYPE_OPTIONS.find(opt => opt.id === id)?.label ?? id;
+};
+
+const ROW_HORIZONTAL_PADDING = 8;
 // width cố định cho từng cột
 const COL_WIDTH = {
     readKey: 120,
@@ -43,7 +57,8 @@ const TABLE_WIDTH =
     COL_WIDTH.value +
     COL_WIDTH.format +
     COL_WIDTH.required +
-    COL_WIDTH.keyType;
+    COL_WIDTH.keyType +
+    ROW_HORIZONTAL_PADDING * 2;
 
 // Read Key cố định như bạn nói
 const DEFAULT_ROWS: QrTemplateRow[] = [
@@ -53,7 +68,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: true,
-        keyType: 'Header',
+        keyType: 'item',
     },
     {
         id: 'factoryName',
@@ -61,7 +76,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: true,
-        keyType: 'Header',
+        keyType: 'item',
     },
     {
         id: 'partNo',
@@ -69,7 +84,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: true,
-        keyType: 'Detail',
+        keyType: 'item',
     },
     {
         id: 'chemicalName',
@@ -77,7 +92,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: true,
-        keyType: 'Detail',
+        keyType: 'item',
     },
     {
         id: 'batchLotNo',
@@ -85,7 +100,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: true,
-        keyType: 'Detail',
+        keyType: 'item',
     },
     {
         id: 'prodDate',
@@ -93,7 +108,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'date',
         required: false,
-        keyType: 'Detail',
+        keyType: 'mfgdt',
     },
     {
         id: 'expDate',
@@ -101,7 +116,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'date',
         required: false,
-        keyType: 'Detail',
+        keyType: 'expdt',
     },
     {
         id: 'capacity',
@@ -109,7 +124,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'number',
         required: false,
-        keyType: 'Detail',
+        keyType: 'item',
     },
     {
         id: 'unit',
@@ -117,7 +132,7 @@ const DEFAULT_ROWS: QrTemplateRow[] = [
         value: '',
         format: 'string',
         required: false,
-        keyType: 'Detail',
+        keyType: 'item',
     },
 ];
 
@@ -142,11 +157,11 @@ export const QrTemplateGrid: React.FC<Props> = ({
         [onChangeRows],
     );
 
-    const handleChangeValue = (id: string, text: string) => {
-        updateRows(prev =>
-            prev.map(r => (r.id === id ? { ...r, value: text } : r)),
-        );
-    };
+    // const handleChangeValue = (id: string, text: string) => {
+    //     updateRows(prev =>
+    //         prev.map(r => (r.id === id ? { ...r, value: text } : r)),
+    //     );
+    // };
 
     const handlePressRequired = (id: string, current: boolean) => {
         openSelection({
@@ -165,6 +180,31 @@ export const QrTemplateGrid: React.FC<Props> = ({
                 const isTrue = selectedIds[0] === 'true';
                 updateRows(prev =>
                     prev.map(r => (r.id === id ? { ...r, required: isTrue } : r)),
+                );
+            },
+        });
+    };
+
+    const handlePressKeyType = (id: string, current: QrTemplateKeyType) => {
+        openSelection({
+            title: 'Key Type',
+            subtitle: 'Chọn loại key cho dòng này',
+            variant: 'dialog',
+            mode: 'single',
+            items: KEY_TYPE_OPTIONS.map(opt => ({
+                id: opt.id,
+                label: opt.label,
+            })),
+            initialSelectedIds: [current],
+            confirmLabel: 'OK',
+            cancelLabel: 'Hủy',
+            onConfirm: selectedIds => {
+                const nextId =
+                    (selectedIds[0] as QrTemplateKeyType | undefined) ?? current;
+                updateRows(prev =>
+                    prev.map(r =>
+                        r.id === id ? { ...r, keyType: nextId } : r,
+                    ),
                 );
             },
         });
@@ -193,7 +233,7 @@ export const QrTemplateGrid: React.FC<Props> = ({
             </Text>
 
             {/* Value (TextInput) */}
-            <View
+            {/* <View
                 style={{
                     width: COL_WIDTH.value,
                     paddingRight: 4,
@@ -215,7 +255,54 @@ export const QrTemplateGrid: React.FC<Props> = ({
                         },
                     ]}
                 />
-            </View>
+            </View> */}
+            <Text
+                style={[
+                    styles.cellText,
+                    {
+                        width: COL_WIDTH.value,
+                        color: item.value ? primaryText : secondaryText,
+                    },
+                ]}
+                numberOfLines={1}
+            >
+                {item.value || '-'}
+            </Text>
+
+            {/* Key Type */}
+            {/* <Text
+                style={[
+                    styles.cellText,
+                    { width: COL_WIDTH.keyType, color: secondaryText },
+                ]}
+                numberOfLines={1}
+            >
+                {item.keyType}
+            </Text> */}
+            <TouchableOpacity
+                style={[
+                    styles.pillCell,
+                    {
+                        width: COL_WIDTH.keyType,
+                        borderColor:
+                            theme.colors.outlineVariant ?? theme.colors.outline,
+                        backgroundColor:
+                            theme.colors.surfaceVariant ?? theme.colors.surface,
+                    },
+                ]}
+                activeOpacity={0.7}
+                onPress={() => handlePressKeyType(item.id, item.keyType)}
+            >
+                <Text
+                    style={[
+                        styles.pillText,
+                        { color: primaryText },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {getKeyTypeLabel(item.keyType)}
+                </Text>
+            </TouchableOpacity>
 
             {/* Format */}
             <Text
@@ -229,7 +316,7 @@ export const QrTemplateGrid: React.FC<Props> = ({
             </Text>
 
             {/* Required (bấm mở selection) */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 style={[
                     styles.requiredCell,
                     { width: COL_WIDTH.required },
@@ -248,23 +335,44 @@ export const QrTemplateGrid: React.FC<Props> = ({
                 >
                     {item.required ? 'True' : 'False'}
                 </Text>
-            </TouchableOpacity>
-
-            {/* Key Type */}
-            <Text
+            </TouchableOpacity> */}
+            <TouchableOpacity
                 style={[
-                    styles.cellText,
-                    { width: COL_WIDTH.keyType, color: secondaryText },
+                    styles.pillCell,
+                    {
+                        width: COL_WIDTH.required,
+                        borderColor: item.required
+                            ? theme.colors.primary
+                            : theme.colors.outlineVariant ?? theme.colors.outline,
+                        backgroundColor: item.required
+                            ? theme.colors.primaryContainer ??
+                            theme.colors.surfaceVariant
+                            : theme.colors.surface,
+                    },
                 ]}
-                numberOfLines={1}
+                activeOpacity={0.7}
+                onPress={() => handlePressRequired(item.id, item.required)}
             >
-                {item.keyType}
-            </Text>
+                <Text
+                    style={[
+                        styles.pillText,
+                        {
+                            color: item.required
+                                ? theme.colors.onPrimaryContainer ??
+                                theme.colors.primary
+                                : secondaryText,
+                        },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {item.required ? 'True' : 'False'}
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 
     return (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ flex: 1, marginTop: 16 }}>
             <Text
                 style={{
                     fontSize: 14,
@@ -281,6 +389,7 @@ export const QrTemplateGrid: React.FC<Props> = ({
                 showsHorizontalScrollIndicator
                 keyboardShouldPersistTaps="handled"
                 style={{
+                    flex: 1,
                     borderWidth: StyleSheet.hairlineWidth,
                     borderColor:
                         theme.colors.outlineVariant ?? theme.colors.outline,
@@ -323,6 +432,15 @@ export const QrTemplateGrid: React.FC<Props> = ({
                         <Text
                             style={[
                                 styles.headerCell,
+                                { width: COL_WIDTH.keyType, color: primaryText },
+                            ]}
+                            numberOfLines={1}
+                        >
+                            Key Type
+                        </Text>
+                        <Text
+                            style={[
+                                styles.headerCell,
                                 { width: COL_WIDTH.format, color: primaryText },
                             ]}
                             numberOfLines={1}
@@ -342,15 +460,6 @@ export const QrTemplateGrid: React.FC<Props> = ({
                         >
                             Required
                         </Text>
-                        <Text
-                            style={[
-                                styles.headerCell,
-                                { width: COL_WIDTH.keyType, color: primaryText },
-                            ]}
-                            numberOfLines={1}
-                        >
-                            Key Type
-                        </Text>
                     </View>
 
                     {/* Rows – FlatList cuộn dọc */}
@@ -359,6 +468,7 @@ export const QrTemplateGrid: React.FC<Props> = ({
                         keyExtractor={item => item.id}
                         renderItem={renderRow}
                         keyboardShouldPersistTaps="handled"
+                        style={{ flex: 1 }}
                     />
                 </View>
             </ScrollView>
@@ -370,7 +480,7 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
+        paddingHorizontal: ROW_HORIZONTAL_PADDING,
         paddingVertical: 6,
     },
     headerCell: {
@@ -382,16 +492,28 @@ const styles = StyleSheet.create({
         fontSize: 12,
         paddingRight: 4,
     },
-    valueInput: {
-        borderWidth: 1,
-        borderRadius: 6,
-        paddingHorizontal: 6,
-        paddingVertical: 4,
-        fontSize: 12,
-    },
-    requiredCell: {
+    pillCell: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 2,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 999,
+        borderWidth: 1,
     },
+    pillText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    // valueInput: {
+    //     borderWidth: 1,
+    //     borderRadius: 6,
+    //     paddingHorizontal: 6,
+    //     paddingVertical: 4,
+    //     fontSize: 12,
+    // },
+    // requiredCell: {
+    //     alignItems: 'center',
+    //     justifyContent: 'center',
+    //     paddingVertical: 2,
+    // },
 });
