@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import { checkForAppUpdate, downloadApkToAppDir, installApk } from '../utils/appUpdate';
 
+import Config from 'react-native-config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAppVersionInfo } from '../utils/appInfo';
 import { storageUtils } from '../utils/mmkv';
@@ -84,15 +85,25 @@ export function SettingsScreen() {
                     `Bản mới: ${result.latestVersionName} (Build ${result.latestVersionCode})\n\n` +
                     'Bạn có muốn tải về và cài đặt ngay bây giờ không?',
                 onConfirm: async () => {
-                    // ⚠️ Tạm thời fake URL, sau bạn thay bằng URL nội bộ thật
-                    const fakeApkUrl = 'https://example.com/ccms-latest.apk';
+
+                    const apkDownloadUrl = Config.APK_DOWNLOAD_URL;
+
+                    if (!apkDownloadUrl) {
+                        // Không lộ URL, nhưng nếu cấu hình sai thì hiện thông báo lỗi
+                        showError({
+                            title: 'Lỗi cấu hình',
+                            message:
+                                'Biến môi trường APK_DOWNLOAD_URL chưa được cấu hình. Vui lòng liên hệ quản trị hệ thống.',
+                        });
+                        return;
+                    }
 
                     try {
                         setIsUpdating(true);
                         setDownloadProgress(0);
 
                         const localPath = await downloadApkToAppDir(
-                            fakeApkUrl,
+                            apkDownloadUrl,
                             progress => {
                                 // progress: 0–100
                                 setDownloadProgress(progress);
