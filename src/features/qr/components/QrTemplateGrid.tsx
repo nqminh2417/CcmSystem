@@ -5,12 +5,12 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
 import React, { useCallback, useState } from 'react';
 
+import { Checkbox } from 'react-native-paper';
 import { useHighContrastTextColors } from '../../../hooks/useHighContrastTextColors';
 import { usePaperAppTheme } from '../../../context/ThemeContext';
 import { useSelection } from '../../../context/SelectionContext';
@@ -157,34 +157,6 @@ export const QrTemplateGrid: React.FC<Props> = ({
         [onChangeRows],
     );
 
-    // const handleChangeValue = (id: string, text: string) => {
-    //     updateRows(prev =>
-    //         prev.map(r => (r.id === id ? { ...r, value: text } : r)),
-    //     );
-    // };
-
-    const handlePressRequired = (id: string, current: boolean) => {
-        openSelection({
-            title: 'Required?',
-            subtitle: 'Chọn True / False cho dòng này',
-            variant: 'dialog',
-            mode: 'single',
-            items: [
-                { id: 'true', label: 'True' },
-                { id: 'false', label: 'False' },
-            ],
-            initialSelectedIds: [current ? 'true' : 'false'],
-            confirmLabel: 'OK',
-            cancelLabel: 'Hủy',
-            onConfirm: selectedIds => {
-                const isTrue = selectedIds[0] === 'true';
-                updateRows(prev =>
-                    prev.map(r => (r.id === id ? { ...r, required: isTrue } : r)),
-                );
-            },
-        });
-    };
-
     const handlePressKeyType = (id: string, current: QrTemplateKeyType) => {
         openSelection({
             title: 'Key Type',
@@ -233,29 +205,6 @@ export const QrTemplateGrid: React.FC<Props> = ({
             </Text>
 
             {/* Value (TextInput) */}
-            {/* <View
-                style={{
-                    width: COL_WIDTH.value,
-                    paddingRight: 4,
-                }}
-            >
-                <TextInput
-                    value={item.value}
-                    onChangeText={text => handleChangeValue(item.id, text)}
-                    placeholder="Nhập value"
-                    placeholderTextColor={theme.colors.outline}
-                    keyboardType={item.id === 'capacity' ? 'numeric' : 'default'}
-                    style={[
-                        styles.valueInput,
-                        {
-                            borderColor:
-                                theme.colors.outlineVariant ?? theme.colors.outline,
-                            color: primaryText,
-                            backgroundColor: theme.colors.surface,
-                        },
-                    ]}
-                />
-            </View> */}
             <Text
                 style={[
                     styles.cellText,
@@ -270,15 +219,6 @@ export const QrTemplateGrid: React.FC<Props> = ({
             </Text>
 
             {/* Key Type */}
-            {/* <Text
-                style={[
-                    styles.cellText,
-                    { width: COL_WIDTH.keyType, color: secondaryText },
-                ]}
-                numberOfLines={1}
-            >
-                {item.keyType}
-            </Text> */}
             <TouchableOpacity
                 style={[
                     styles.pillCell,
@@ -316,58 +256,25 @@ export const QrTemplateGrid: React.FC<Props> = ({
             </Text>
 
             {/* Required (bấm mở selection) */}
-            {/* <TouchableOpacity
-                style={[
-                    styles.requiredCell,
-                    { width: COL_WIDTH.required },
-                ]}
-                activeOpacity={0.7}
-                onPress={() => handlePressRequired(item.id, item.required)}
+            <View
+                style={{
+                    width: COL_WIDTH.required,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
             >
-                <Text
-                    style={{
-                        fontSize: 12,
-                        fontWeight: '600',
-                        color: item.required
-                            ? theme.colors.primary
-                            : secondaryText,
-                    }}
-                >
-                    {item.required ? 'True' : 'False'}
-                </Text>
-            </TouchableOpacity> */}
-            <TouchableOpacity
-                style={[
-                    styles.pillCell,
-                    {
-                        width: COL_WIDTH.required,
-                        borderColor: item.required
-                            ? theme.colors.primary
-                            : theme.colors.outlineVariant ?? theme.colors.outline,
-                        backgroundColor: item.required
-                            ? theme.colors.primaryContainer ??
-                            theme.colors.surfaceVariant
-                            : theme.colors.surface,
-                    },
-                ]}
-                activeOpacity={0.7}
-                onPress={() => handlePressRequired(item.id, item.required)}
-            >
-                <Text
-                    style={[
-                        styles.pillText,
-                        {
-                            color: item.required
-                                ? theme.colors.onPrimaryContainer ??
-                                theme.colors.primary
-                                : secondaryText,
-                        },
-                    ]}
-                    numberOfLines={1}
-                >
-                    {item.required ? 'True' : 'False'}
-                </Text>
-            </TouchableOpacity>
+                <Checkbox
+                    status={item.required ? 'checked' : 'unchecked'}
+                    onPress={() =>
+                        updateRows(prev =>
+                            prev.map(r =>
+                                r.id === item.id ? { ...r, required: !r.required } : r,
+                            ),
+                        )
+                    }
+                    color={theme.colors.primary}
+                />
+            </View>
         </View>
     );
 
