@@ -4,7 +4,8 @@ module.exports = function (api) {
     presets: ['module:@react-native/babel-preset', 'nativewind/babel',],
     plugins: [
       'react-native-paper/babel',
-      'react-native-reanimated/plugin',
+      // 'react-native-reanimated/plugin',
+      'react-native-worklets/plugin', // has to be listed last.
     ],
   };
 };

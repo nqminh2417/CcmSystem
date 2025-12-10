@@ -108,12 +108,12 @@ android {
     applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             variant.outputs.all { output ->
-                def appName = "ccm"        // tên app bạn muốn
+                def appName = "ccm-latest"        // tên app bạn muốn
                 def versionName = variant.versionName
                 def versionCode = variant.versionCode
 
                 // Ví dụ: ccm-1.apk
-                outputFileName = "${appName}-${versionCode}.apk"
+                outputFileName = "${appName}.apk"
             }
         }
     }
