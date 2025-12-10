@@ -3,11 +3,13 @@ module.exports = {
   extends: '@react-native-community',
   parser: '@babel/eslint-parser',
   parserOptions: {
-    requireConfigFile: false, // ❗ để nó KHÔNG đọc babel.config.js
-    babelOptions: {
-      presets: ['module:@react-native/babel-preset'],
-      // KHÔNG khai báo plugins: ['nativewind/babel', 'react-native-reanimated/plugin'] ở đây
-    },
+    // true = bắt buộc dùng babel.config.js
+    // nếu để false thì phải config qua parserOptions.babelOptions
+    requireConfigFile: true,
+    // babelOptions: {
+    //   presets: ['module:@react-native/babel-preset'],
+    //   // KHÔNG khai báo các plugin nặng như worklets/reanimated ở đây
+    // },
   },
   rules: {
     // Tắt hẳn rule inline styles
