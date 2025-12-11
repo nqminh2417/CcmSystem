@@ -93,97 +93,97 @@ export function HomeScreen() {
             style={{ flex: 1, backgroundColor: theme.colors.background }}
             edges={['top', 'right', 'left', 'bottom']}
         >
-            <View style={{ flex: 1 }}>
-                <ScrollView
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                    }}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View className="flex-1 justify-center items-center px-4">
-                        <View className="w-full space-y-4">
-                            {/* Nút 1: Nhận Hàng */}
-                            <TouchableOpacity
-                                className="rounded-2xl py-6 px-4"
-                                style={{ backgroundColor: theme.colors.primary }}
-                                activeOpacity={0.85}
-                                onPress={handleGoReceive}
-                            >
-                                <Text
-                                    style={{
-                                        color: theme.colors.onPrimary,
-                                        fontSize: 18,
-                                        fontWeight: '700',
-                                        textAlign: 'center',
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    Nhận Hàng
-                                </Text>
-                                <Text
-                                    style={{
-                                        color: theme.colors.onPrimary,
-                                        fontSize: 13,
-                                        textAlign: 'center',
-                                    }}
-                                >
-                                    Nhập hoặc quét QR để tìm, chọn mã PO
-                                </Text>
-                            </TouchableOpacity>
 
-                            {/* Nút 2: màn thứ 2 – sẽ làm sau */}
-                            <TouchableOpacity
-                                className="rounded-2xl py-6 px-4"
+            <ScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                }}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={{ flex: 1, padding: 16, justifyContent: 'center' }}>
+                    <View style={{ gap: 32 }}>
+                        {/* Nút 1: Nhận Hàng */}
+                        <TouchableOpacity
+                            className="rounded-2xl py-6 px-4"
+                            style={{ backgroundColor: theme.colors.primary }}
+                            activeOpacity={0.85}
+                            onPress={handleGoReceive}
+                        >
+                            <Text
                                 style={{
-                                    backgroundColor:
-                                        theme.colors.secondaryContainer ??
-                                        theme.colors.surface,
+                                    color: theme.colors.onPrimary,
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    textAlign: 'center',
+                                    marginBottom: 6,
                                 }}
-                                activeOpacity={0.85}
-                                onPress={handleGoSecond}
                             >
-                                <Text
-                                    style={{
-                                        color: primaryText,
-                                        fontSize: 18,
-                                        fontWeight: '700',
-                                        textAlign: 'center',
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    Chức năng 2
-                                </Text>
-                                <Text
-                                    style={{
-                                        color: secondaryText,
-                                        fontSize: 13,
-                                        textAlign: 'center',
-                                    }}
-                                >
-                                    Sẽ triển khai sau
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </ScrollView>
+                                Nhận Hàng
+                            </Text>
+                            <Text
+                                style={{
+                                    color: theme.colors.onPrimary,
+                                    fontSize: 13,
+                                    textAlign: 'center',
+                                }}
+                            >
+                                Nhập hoặc quét QR để tìm, chọn mã PO
+                            </Text>
+                        </TouchableOpacity>
 
-                {/* Version ở center bottom + tap 5 lần để mở DevDemoScreen */}
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={handleVersionTap}
-                    style={{ paddingVertical: 6 }}
+                        {/* Nút 2: màn thứ 2 – sẽ làm sau */}
+                        <TouchableOpacity
+                            className="rounded-2xl py-6 px-4"
+                            style={{
+                                backgroundColor:
+                                    theme.colors.secondaryContainer ??
+                                    theme.colors.surface,
+                            }}
+                            activeOpacity={0.85}
+                            onPress={handleGoSecond}
+                        >
+                            <Text
+                                style={{
+                                    color: primaryText,
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    textAlign: 'center',
+                                    marginBottom: 6,
+                                }}
+                            >
+                                Kiểm QR
+                            </Text>
+                            <Text
+                                style={{
+                                    color: secondaryText,
+                                    fontSize: 13,
+                                    textAlign: 'center',
+                                }}
+                            >
+                                Sẽ triển khai sau
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
+
+            {/* Version ở center bottom + tap 5 lần để mở DevDemoScreen */}
+            <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleVersionTap}
+                style={{ paddingVertical: 6 }}
+            >
+                <Text
+                    style={{
+                        textAlign: 'center',
+                        fontSize: 12,
+                        color: theme.colors.onSurfaceVariant,
+                    }}
                 >
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            fontSize: 12,
-                            color: theme.colors.onSurfaceVariant,
-                        }}
-                    >
-                        {displayShort}
-                    </Text>
-                </TouchableOpacity>
-            </View>
+                    {displayShort}
+                </Text>
+            </TouchableOpacity>
+
         </SafeAreaView>
     );
 }

@@ -112,11 +112,11 @@ export const ReceiveGoodsScreen: React.FC<Props> = ({ navigation }) => {
                     <Text
                         style={[
                             styles.cellText,
-                            { width: COL_WIDTH.itemName, color: theme.colors.onSurfaceVariant },
+                            { width: COL_WIDTH.supplierName, color: theme.colors.onSurfaceVariant },
                         ]}
                         numberOfLines={2}
                     >
-                        {item.itemName ?? ''}
+                        {item.supplierName ?? ''}
                     </Text>
                     <Text
                         style={[
@@ -130,11 +130,11 @@ export const ReceiveGoodsScreen: React.FC<Props> = ({ navigation }) => {
                     <Text
                         style={[
                             styles.cellText,
-                            { width: COL_WIDTH.supplierName, color: theme.colors.onSurfaceVariant },
+                            { width: COL_WIDTH.itemName, color: theme.colors.onSurfaceVariant },
                         ]}
                         numberOfLines={2}
                     >
-                        {item.supplierName ?? ''}
+                        {item.itemName ?? ''}
                     </Text>
                 </View>
             </TouchableOpacity>
@@ -237,11 +237,14 @@ export const ReceiveGoodsScreen: React.FC<Props> = ({ navigation }) => {
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        { width: COL_WIDTH.itemName, color: theme.colors.onSurface },
+                                        {
+                                            width: COL_WIDTH.supplierName,
+                                            color: theme.colors.onSurface,
+                                        },
                                     ]}
                                     numberOfLines={1}
                                 >
-                                    Item Name
+                                    Supplier Name
                                 </Text>
                                 <Text
                                     style={[
@@ -255,14 +258,11 @@ export const ReceiveGoodsScreen: React.FC<Props> = ({ navigation }) => {
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        {
-                                            width: COL_WIDTH.supplierName,
-                                            color: theme.colors.onSurface,
-                                        },
+                                        { width: COL_WIDTH.itemName, color: theme.colors.onSurface },
                                     ]}
                                     numberOfLines={1}
                                 >
-                                    Supplier Name
+                                    Item Name
                                 </Text>
                             </View>
 

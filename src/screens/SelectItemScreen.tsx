@@ -1,12 +1,14 @@
 // src/screens/SelectItemScreen.tsx
 
-import { Button, Checkbox, Text, TextInput } from 'react-native-paper';
-import React, { useState } from 'react';
+import { Button, Checkbox, Text } from 'react-native-paper';
 import {
+    FlatList,
     ScrollView,
     StyleSheet,
-    View,
+    TextInput,
+    View
 } from 'react-native';
+import React, { useState } from 'react';
 
 import {
     SafeAreaView,
@@ -60,6 +62,18 @@ export function SelectItemScreen() {
             itemName: 'ITEM NAME DEMO 03',
             checked: false,
         },
+        {
+            id: '4',
+            itemCode: 'S0000004',
+            itemName: 'ITEM NAME DEMO 04',
+            checked: true,
+        },
+        {
+            id: '5',
+            itemCode: 'S0000005',
+            itemName: 'ITEM NAME DEMO 05',
+            checked: true,
+        },
     ]);
 
     const toggleChecked = (id: string) => {
@@ -72,7 +86,19 @@ export function SelectItemScreen() {
 
     const handleSaveItemTemplate = () => {
         // TODO: sau này gọi API lưu mẫu item
-        console.log('Lưu mẫu item cho PO: ', poNo, rows);
+        // Lọc các dòng được check
+        const selectedRows = rows.filter(r => r.checked);
+
+        // Lấy danh sách itemCode
+        const selectedItemCodes = selectedRows.map(r => r.itemCode);
+
+        // Tạm thời log ra, sau này dùng body này để call API
+        console.log('Lưu mẫu item template:', {
+            poNo,
+            itemCodes: selectedItemCodes,
+            // nếu sau này cần thêm itemName / full row:
+            // items: selectedRows,
+        });
     };
 
     const renderRow = ({ item }: { item: ItemRow }) => (
@@ -126,59 +152,73 @@ export function SelectItemScreen() {
     return (
         <SafeAreaView
             style={{ flex: 1, backgroundColor: theme.colors.background }}
-            edges={['right', 'left', 'bottom']}
+            edges={['top', 'right', 'left', 'bottom']}
         >
             <View style={styles.container}>
                 <View style={styles.content}>
-                    {/* PO No. */}
-                    <View style={styles.poRow}>
-                        <Text style={styles.label}>PO No.</Text>
-                        <TextInput
-                            dense
-                            value={poNo}
-                            editable={false}
-                            selectTextOnFocus={false}
-                            style={[
-                                styles.poInput,
-                                {
-                                    backgroundColor: theme.colors.surface,
-                                },
-                            ]}
-                        />
-                    </View>
+                    <View style={{
+                        flex: 1,
+                        // backgroundColor: 'orange'
+                    }}>
+                        {/* PO No. */}
+                        <View style={styles.poRow}>
+                            <Text style={styles.label}>PO No.</Text>
+                            <TextInput
+                                value={poNo}
+                                editable={false}
+                                selectTextOnFocus={false}
+                                style={[
+                                    styles.poInput,
+                                    {
+                                        backgroundColor: theme.colors.surface,
+                                    },
+                                ]}
+                            />
+                        </View>
 
-                    {/* Scan QRCode + thông tin Read Key */}
-                    <View style={styles.scanBlock}>
-                        <Text
-                            style={[
-                                styles.label,
-                                { color: primaryText },
-                            ]}
-                        >
-                            Scan QR Code
-                        </Text>
-
-                        <View
-                            style={[
-                                styles.scanInfoBox,
-                                {
-                                    borderColor: theme.colors.outline,
-                                    backgroundColor: theme.colors.surface,
-                                },
-                            ]}
-                        >
-                            {/* Tạm thời fake thông tin Read Key */}
+                        {/* Scan QRCode + thông tin Read Key */}
+                        <View style={styles.scanBlock}>
                             <Text
-                                style={{
-                                    fontSize: 13,
-                                    color: secondaryText,
-                                }}
+                                style={[
+                                    styles.label,
+                                    { color: primaryText },
+                                ]}
                             >
-                                Supplier Name: HENKEL{'\n'}
-                                Factory Name: Vietnam{'\n'}
-                                Part No.: S0000001{'\n'}
-                                ...
+                                Scan QR Code
                             </Text>
+
+                            <View
+                                style={[
+                                    styles.scanInfoBox,
+                                    {
+                                        flex: 1,
+                                        borderColor: theme.colors.outline,
+                                        backgroundColor: theme.colors.surface,
+                                    },
+                                ]}
+                            >
+                                <ScrollView
+                                    style={{ flex: 1, maxHeight: 200 }}    // hoặc dùng flex: 1 nếu muốn chiếm kín
+                                    showsVerticalScrollIndicator
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            color: secondaryText,
+                                        }}
+                                    >
+                                        Supplier Name: HENKEL{'\n'}
+                                        Factory Name: Vietnam{'\n'}
+                                        Part No.: 2968189{'\n'}
+                                        Chemical Name: 233CPA V3{'\n'}
+                                        Batch/Lot No.: N453109428{'\n'}
+                                        Production Date: 05082025{'\n'}
+                                        Expiry Date: 01022026{'\n'}
+                                        Capacity: 13{'\n'}
+                                        Unit: KG
+                                    </Text>
+                                </ScrollView>
+                            </View>
                         </View>
                     </View>
 
@@ -194,12 +234,13 @@ export function SelectItemScreen() {
                         </Text>
 
                         {/* Vertical scroll nếu nhiều dòng */}
-                        <ScrollView style={{ flex: 1 }}>
+                        <View style={{ flex: 1 }}>
                             {/* Horizontal scroll để tràn phải thì kéo */}
                             <ScrollView
                                 horizontal
                                 showsHorizontalScrollIndicator
                                 style={{
+                                    flex: 1,
                                     borderWidth: StyleSheet.hairlineWidth,
                                     borderColor:
                                         theme.colors.outlineVariant ??
@@ -207,21 +248,19 @@ export function SelectItemScreen() {
                                     borderRadius: 8,
                                 }}
                             >
-                                <View style={{ width: TABLE_WIDTH }}>
+                                <View style={{ width: TABLE_WIDTH, flex: 1 }}>
                                     {/* Header */}
                                     <View
                                         style={[
                                             styles.row,
                                             {
                                                 backgroundColor:
-                                                    theme.colors
-                                                        .surfaceVariant ??
+                                                    theme.colors.surfaceVariant ??
                                                     theme.colors.surface,
                                                 borderBottomWidth:
                                                     StyleSheet.hairlineWidth,
                                                 borderBottomColor:
-                                                    theme.colors
-                                                        .outlineVariant ??
+                                                    theme.colors.outlineVariant ??
                                                     theme.colors.outline,
                                             },
                                         ]}
@@ -265,15 +304,17 @@ export function SelectItemScreen() {
                                         </Text>
                                     </View>
 
-                                    {/* Rows */}
-                                    {rows.map(r => (
-                                        <React.Fragment key={r.id}>
-                                            {renderRow({ item: r })}
-                                        </React.Fragment>
-                                    ))}
+                                    {/* Rows: FlatList cuộn dọc */}
+                                    <FlatList
+                                        data={rows}
+                                        keyExtractor={item => item.id}
+                                        renderItem={renderRow}
+                                        style={{ flex: 1 }}
+                                        contentContainerStyle={{}}
+                                    />
                                 </View>
                             </ScrollView>
-                        </ScrollView>
+                        </View>
                     </View>
                 </View>
 
@@ -313,10 +354,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
+        paddingVertical: 8,
         fontSize: 14,
     },
     scanBlock: {
-        marginBottom: 12,
+        flex: 1,
+        // marginBottom: 12,
     },
     scanInfoBox: {
         borderWidth: 1,
@@ -337,16 +380,16 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 40,
         paddingHorizontal: 8,
+        paddingVertical: 1,
     },
     headerCell: {
         fontSize: 13,
-        fontWeight: '600',
+        fontWeight: '700',
         paddingVertical: 6,
     },
     cellText: {
-        fontSize: 13,
+        fontSize: 11,
         paddingVertical: 6,
     },
     checkCell: {
