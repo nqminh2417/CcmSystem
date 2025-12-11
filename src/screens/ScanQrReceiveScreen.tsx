@@ -22,18 +22,27 @@ type ScanQrReceiveRouteParams = {
 // tạm thời 3 cột: QR Raw, Parsed Value, Status (sau bạn đổi tên / cấu trúc tuỳ ý)
 type ScanRow = {
     id: string;
-    qrRaw: string;
-    parsedValue: string;
-    status: string;
+    itemCode: string;
+    itemName: string;
+    qtyPerUnit: string;
+    qty: string;
+    supplierName: string;
 };
 
 const COL_WIDTH = {
-    qrRaw: 100,
-    parsedValue: 180,
-    status: 100,
+    itemCode: 90,
+    itemName: 180,
+    qtyPerUnit: 80,
+    qty: 60,
+    supplierName: 160,
 };
 
-const TABLE_WIDTH = COL_WIDTH.qrRaw + COL_WIDTH.parsedValue + COL_WIDTH.status;
+const TABLE_WIDTH =
+    COL_WIDTH.itemCode +
+    COL_WIDTH.itemName +
+    COL_WIDTH.qtyPerUnit +
+    COL_WIDTH.qty +
+    COL_WIDTH.supplierName;
 
 export function ScanQrReceiveScreen() {
     const theme = usePaperAppTheme();
@@ -44,32 +53,54 @@ export function ScanQrReceiveScreen() {
     const poNo = (route.params as ScanQrReceiveRouteParams)?.poNo ?? '';
 
     // TODO: sau này rows sẽ được cập nhật khi máy scan bắn data vào
-    const [rows] = useState<ScanRow[]>([
+    const [rows, setRows] = useState<ScanRow[]>([
         {
             id: '1',
-            qrRaw: 'QR-001-ABC',
-            parsedValue: 'PO123456 / Item 01',
-            status: 'OK',
+            itemCode: 'ITEM-001',
+            itemName: 'Item name 01',
+            qtyPerUnit: '10',
+            qty: '1',
+            supplierName: 'Supplier A',
         },
         {
             id: '2',
-            qrRaw: 'QR-002-DEF',
-            parsedValue: 'PO123456 / Item 02',
-            status: 'OK',
-        },
-        {
-            id: '3',
-            qrRaw: 'QR-003-XYZ',
-            parsedValue: 'PO123456 / Item 03',
-            status: 'DUP',
+            itemCode: 'ITEM-002',
+            itemName: 'Item name 02',
+            qtyPerUnit: '10',
+            qty: '2',
+            supplierName: 'Supplier B',
         },
     ]);
+
+    const handlePickItem = () => {
+        // TODO: sau này gọi API "Lưu nhận hàng"
+        // Tạm thời điều hướng sang SelectItemScreen
+        console.log('qua màn hình chọn item cho PO: ', poNo);
+        navigation.navigate(Routes.SelectItem, { poNo });
+    };
 
     const handleSaveReceive = () => {
         // TODO: sau này gọi API "Lưu nhận hàng"
         // Tạm thời điều hướng sang AddQrTemplateScreen
         console.log('Lưu nhận hàng cho PO: ', poNo);
         navigation.navigate(Routes.AddQrTemplate, { poNo });
+    };
+
+    const handleFakeScan = () => {
+        setRows(prev => {
+            const index = prev.length + 1;
+            return [
+                ...prev,
+                {
+                    id: String(index),
+                    itemCode: `ITEM-${String(index).padStart(3, '0')}`,
+                    itemName: `Item name ${String(index).padStart(2, '0')}`,
+                    qtyPerUnit: '10',
+                    qty: String(index),
+                    supplierName: `Supplier ${String.fromCharCode(64 + ((index % 26) || 1))}`,
+                },
+            ];
+        });
     };
 
     const renderRow = ({ item }: { item: ScanRow }) => (
@@ -87,36 +118,55 @@ export function ScanQrReceiveScreen() {
             <Text
                 style={[
                     styles.cellText,
-                    { width: COL_WIDTH.qrRaw, color: primaryText },
+                    { width: COL_WIDTH.itemCode, color: primaryText },
                 ]}
                 numberOfLines={1}
             >
-                {item.qrRaw}
+                {item.itemCode}
             </Text>
             <Text
                 style={[
                     styles.cellText,
-                    { width: COL_WIDTH.parsedValue, color: secondaryText },
+                    { width: COL_WIDTH.itemName, color: secondaryText },
                 ]}
                 numberOfLines={1}
             >
-                {item.parsedValue}
+                {item.itemName}
             </Text>
             <Text
                 style={[
                     styles.cellText,
                     {
-                        width: COL_WIDTH.status,
-                        color:
-                            item.status === 'OK'
-                                ? theme.colors.primary
-                                : theme.colors.error,
+                        width: COL_WIDTH.qtyPerUnit,
+                        color: primaryText,
                         textAlign: 'center',
                     },
                 ]}
                 numberOfLines={1}
             >
-                {item.status}
+                {item.qtyPerUnit}
+            </Text>
+            <Text
+                style={[
+                    styles.cellText,
+                    {
+                        width: COL_WIDTH.qty,
+                        color: primaryText,
+                        textAlign: 'center',
+                    },
+                ]}
+                numberOfLines={1}
+            >
+                {item.qty}
+            </Text>
+            <Text
+                style={[
+                    styles.cellText,
+                    { width: COL_WIDTH.supplierName, color: secondaryText },
+                ]}
+                numberOfLines={1}
+            >
+                {item.supplierName}
             </Text>
         </View>
     );
@@ -175,44 +225,62 @@ export function ScanQrReceiveScreen() {
                                             theme.colors.surfaceVariant ?? theme.colors.surface,
                                         borderBottomWidth: StyleSheet.hairlineWidth,
                                         borderBottomColor:
-                                            theme.colors.outlineVariant ??
-                                            theme.colors.outline,
+                                            theme.colors.outlineVariant ?? theme.colors.outline,
                                     },
                                 ]}
                             >
                                 <Text
                                     style={[
                                         styles.headerCell,
-                                        { width: COL_WIDTH.qrRaw, color: primaryText },
+                                        { width: COL_WIDTH.itemCode, color: primaryText },
                                     ]}
                                     numberOfLines={1}
                                 >
-                                    QR Raw
+                                    Item code
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.headerCell,
+                                        { width: COL_WIDTH.itemName, color: primaryText },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    Item name
                                 </Text>
                                 <Text
                                     style={[
                                         styles.headerCell,
                                         {
-                                            width: COL_WIDTH.parsedValue,
-                                            color: primaryText,
-                                        },
-                                    ]}
-                                    numberOfLines={1}
-                                >
-                                    Parsed Value
-                                </Text>
-                                <Text
-                                    style={[
-                                        styles.headerCell,
-                                        {
-                                            width: COL_WIDTH.status,
+                                            width: COL_WIDTH.qtyPerUnit,
                                             color: primaryText,
                                             textAlign: 'center',
                                         },
                                     ]}
                                     numberOfLines={1}
                                 >
-                                    Status
+                                    Qty/unit
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.headerCell,
+                                        {
+                                            width: COL_WIDTH.qty,
+                                            color: primaryText,
+                                            textAlign: 'center',
+                                        },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    Qty
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.headerCell,
+                                        { width: COL_WIDTH.supplierName, color: primaryText },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    Supplier name
                                 </Text>
                             </View>
 
@@ -228,13 +296,30 @@ export function ScanQrReceiveScreen() {
                     </ScrollView>
                 </View>
 
-                {/* Nút Lưu nhận hàng */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Button
+                        mode="contained"
+                        onPress={handlePickItem}
+                        style={styles.saveButton}
+                    >
+                        Chọn Item
+                    </Button>
+                    {/* Nút Lưu nhận hàng */}
+                    <Button
+                        mode="contained"
+                        onPress={handleSaveReceive}
+                        style={styles.saveButton}
+                    >
+                        Lưu nhận hàng
+                    </Button>
+                </View>
+                {/* fake scan */}
                 <Button
-                    mode="contained"
-                    onPress={handleSaveReceive}
-                    style={styles.saveButton}
+                    mode="outlined"
+                    onPress={handleFakeScan}
+                    style={{}}
                 >
-                    Lưu nhận hàng
+                    Giả lập scan (thêm 1 dòng)
                 </Button>
             </View>
         </SafeAreaView>
@@ -285,6 +370,6 @@ const styles = StyleSheet.create({
         paddingRight: 4,
     },
     saveButton: {
-        alignSelf: 'flex-end', // đổi thành 'stretch' nếu muốn full width
+        // alignSelf: 'flex-end', // đổi thành 'stretch' nếu muốn full width
     },
 });
