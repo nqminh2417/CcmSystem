@@ -11,6 +11,8 @@
     "test": "jest",
     "android:clean": "cd android && gradlew.bat clean",
     "android:clean-debug": "yarn android:clean && yarn start:reset",
+    "android:aab": "cd android && gradlew.bat bundleRelease",
+    "android:apk": "cd android && gradlew.bat assembleRelease",
     "android:clean-aab": "cd android && gradlew.bat clean bundleRelease",
     "android:clean-apk": "cd android && gradlew.bat clean assembleRelease",
     "android:clean-dirs": "IF EXIST android\\build (rmdir /s /q android\\build) && IF EXIST android\\app\\build (rmdir /s /q android\\app\\build) && IF EXIST android\\app\\.cxx (rmdir /s /q android\\app\\.cxx)",
